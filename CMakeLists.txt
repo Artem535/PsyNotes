@@ -48,9 +48,9 @@ deploy_resources("${QmlFiles};${AssetsFiles}")
 qt_add_qml_module(appPsyNotes
     URI PsyNotes
     VERSION 1.0
-# uncomment for publishing:
-#    QML_FILES ${QmlFiles}
-#    RESOURCES ${AssetsFiles}
+    # uncomment for publishing:
+    #    QML_FILES ${QmlFiles}
+    #    RESOURCES ${AssetsFiles}
     NO_RESOURCE_TARGET_PATH
 )
 
