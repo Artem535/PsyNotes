@@ -1,6 +1,7 @@
 import QtQuick
 import Felgo
 import QtQuick.Layouts 1.15
+import "diary"
 
 AppPage {
     id:root

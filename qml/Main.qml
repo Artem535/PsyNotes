@@ -2,6 +2,11 @@ import Felgo
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.15
+import "pages"
+import "pages/diary"
+import "pages/chat"
+import "pages/results"
+import "pages/tests"
 
 App {
     id: root
