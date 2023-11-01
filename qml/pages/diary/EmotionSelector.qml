@@ -9,74 +9,108 @@ Item {
     implicitWidth: 300
 
     property var emotCategories: {
-        "Angry": [{
-                      "name": "1",
-                      "selected": false
-                  }, {
-                      "name": "1",
-                      "selected": false
-                  }],
-        "Fear": [{
-                     "name": "2",
-                     "selected": false
-                 }],
-        "Sad": [{
-                    "name": "3",
-                    "selected": false
-                }],
-        "Love": [{
-                     "name": "4",
-                     "selected": false
-                 }],
-        "Happy": [{
-                      "name": "5",
-                      "selected": false
-                  }]
+        "Angry": {
+            "1": true,
+            "2": false,
+            "3": false
+        },
+        "Fear": {
+            "4": false,
+            "5": false,
+            "6": false
+        },
+        "Sad": {
+            "7": false,
+            "8": false,
+            "9": false
+        },
+        "Love": {
+            "10": false,
+            "11": false,
+            "12": false
+        },
+        "Happy": {
+            "13": false,
+            "14": false,
+            "15": false
+        }
     }
 
-    ColumnLayout {
+    GridLayout {
         anchors.fill: parent
+        anchors.margins: 10
         property int lineHeight: 30
+        columns: 4
+
         AppText {
-            id: emotLabel
-            text: qsTr("What are you feel?")
-            Layout.alignment: Qt.AlignCenter
-            Layout.preferredHeight: parent.height * 0.05
+            text: "Angry"
+            id: labelAngry
+        }
+        AppCheckBox {
+            text: "1"
+            checked: emotCategories[labelAngry.text][text]
+            onCheckedChanged: {
+                emotCategories[labelAngry.text][text] = false
+                console.log(emotCategories[labelAngry.text][text])
+            }
+        }
+        AppCheckBox {
+            text: "2"
+        }
+        AppCheckBox {
+            text: "3"
         }
 
-        EmotionLine {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            emotName: "Angry"
-            emotArray: emotCategories[emotName]
+        AppText {
+            text: "Fear"
+        }
+        AppCheckBox {
+            text: "1"
+        }
+        AppCheckBox {
+            text: "2"
+        }
+        AppCheckBox {
+            text: "3"
         }
 
-        EmotionLine {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            emotName: "Fear"
-            emotArray: emotCategories[emotName]
+        AppText {
+            text: "Sad"
+        }
+        AppCheckBox {
+            text: "1"
+        }
+        AppCheckBox {
+            text: "2"
+        }
+        AppCheckBox {
+            text: "3"
         }
 
-        EmotionLine {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            emotName: "Sad"
-            emotArray: emotCategories[emotName]
+        AppText {
+            text: "Happy"
+        }
+        AppCheckBox {
+            text: "1"
+        }
+        AppCheckBox {
+            text: "2"
+        }
+        AppCheckBox {
+            text: "3"
         }
 
-        EmotionLine {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            emotName: "Happy"
-            emotArray: emotCategories[emotName]
+        AppText {
+            text: "Love"
         }
-
-        EmotionLine {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            emotName: "Love"
-            emotArray: emotCategories[emotName]
+        AppCheckBox {
+            text: "1"
+        }
+        AppCheckBox {
+            text: "2"
+        }
+        AppCheckBox {
+            text: "3"
         }
     }
 }

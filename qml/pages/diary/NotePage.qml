@@ -7,7 +7,7 @@ FlickablePage {
     id: root
     title: "Note"
 
-    flickable.contentHeight: layout
+    flickable.contentHeight: layout.height
 
     ColumnLayout {
         id: layout
@@ -19,23 +19,24 @@ FlickablePage {
             Layout.preferredHeight: 70
         }
 
-        EmotionSelector {
+        EmotionSelectorDynamic {
             Layout.fillWidth: true
             Layout.preferredHeight: 300
         }
 
-        RowLayout {
-            Layout.preferredHeight: 40
-            Layout.margins: 10
+        AppTextArea {
+            title: qsTr("What are you think?")
+            Layout.fillWidth: true
+        }
 
-            AppText {
-                text: "Detailed"
-                Layout.fillHeight: true
-            }
+        AppTextArea {
+            title: qsTr("Your behaviour?")
+            Layout.fillWidth: true
+        }
 
-            AppSwitch {
-                id: switchItem
-            }
+        AppTextArea {
+            title: qsTr("What are you feel in body?")
+            Layout.fillWidth: true
         }
     }
 }

@@ -8,7 +8,7 @@ Item {
     implicitHeight: 30
     implicitWidth: 100
     property alias emotName: item.text
-    property alias emotArray: jsonModel.source
+    property var emotArray: []
 
     AppListItem {
         id: item
@@ -18,15 +18,24 @@ Item {
 
         JsonListModel {
             id: jsonModel
-            source: []
+            source: emotArray
         }
 
-        rightItem: Repeater {
-            model: jsonModel
-            delegate: AppCheckBox {
-                text: model.name
-                state: model.selected
-                anchors.verticalCenter: parent.verticalCenter
+        rightItem: Row {
+            width: item.width * 0.5
+            height: item.height
+            Repeater {
+                model: jsonModel
+                delegate: AppCheckBox {
+                    width: parent.width / 3
+                    text: model.name
+                    checked: model.selected
+                    anchors.verticalCenter: parent.verticalCenter
+                    onCheckedChanged: {
+                        var index = jsonModel.indexOf("name", model.name)
+                        emotArray[index]["selected"] = checked
+                    }
+                }
             }
         }
     }
