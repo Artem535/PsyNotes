@@ -1,3 +1,9 @@
 import QtQuick
 
-Item {}
+Item {
+    signal fetchNoteData()
+
+    signal getNoteDeta
+
+
+}

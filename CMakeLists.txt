@@ -4,8 +4,23 @@ project(PsyNotes VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CXX_STANDARD 11)
+
+
+# Adding objectbox support
+include(FetchContent)
+FetchContent_Declare(
+    objectbox
+    GIT_REPOSITORY https://github.com/objectbox/objectbox-c.git
+    GIT_TAG        v0.19.0
+)
+
+FetchContent_MakeAvailable(objectbox)
+
 
 find_package(Felgo REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 
 # Project identifier and version
 # More information: https://felgo.com/doc/felgo-publishing/#project-configuration
@@ -32,8 +47,14 @@ file(GLOB_RECURSE QmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} qml/*.qml qml/*.
 file(GLOB_RECURSE AssetsFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} assets/* qml/*)
 list(REMOVE_ITEM AssetsFiles ${QmlFiles})
 
+include_directories(headers
+                    headers/notestorage
+                    database)
+
 qt_add_executable(appPsyNotes
-    src/main.cpp
+    ./src/main.cpp
+    ./src/notestorage/notestorage.cpp ./headers/notestorage/notestorage.h
+    ./database/database.obx.cpp
     ${QmlFiles}
     ${AssetsFiles}
 )
@@ -66,7 +87,10 @@ qt_add_qml_module(appPsyNotes
 target_compile_definitions(appPsyNotes
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 
-target_link_libraries(appPsyNotes PRIVATE Felgo)
+target_link_libraries(appPsyNotes
+    PRIVATE
+    objectbox
+    Felgo)
 
 # uncomment this line to add the Live Client Module and use live reloading with your custom C++ code
 # for the remaining steps to build a custom Live Code Reload app see here: https://felgo.com/custom-code-reload-app/
