@@ -49,12 +49,16 @@ list(REMOVE_ITEM AssetsFiles ${QmlFiles})
 
 include_directories(headers
                     headers/notestorage
+                    headers/database
                     database)
+
+file(GLOB_RECURSE SrcFiles  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*)
+file(GLOB_RECURSE HeadersFiles  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} headers/*)
 
 qt_add_executable(appPsyNotes
     ./src/main.cpp
-    ./src/notestorage/notestorage.cpp ./headers/notestorage/notestorage.h
-    ./database/database.obx.cpp
+    ${SrcFiles}
+    ${HeadersFiles}
     ${QmlFiles}
     ${AssetsFiles}
 )

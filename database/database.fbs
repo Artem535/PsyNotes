@@ -1,0 +1,41 @@
+table Note {
+  id: ulong;
+
+  /// objectbox:date
+  time: ulong;
+
+  /// objectbox:relation=NoteText
+  noteTextId: ulong;
+
+  emotGroupId: ulong;
+}
+
+table NoteText {
+  id: ulong;
+  
+  thoughtsTxt: string;
+  
+  behaviorTxt: string;
+  
+  bodyTxt: string;
+  
+  feelsTxt: string;
+  
+  situationTxt: string;
+}
+
+table EmotGroup {
+  id: ulong;
+  
+  angryLevel: int;
+
+  sadLevel: int;
+
+  loveLevel: int;
+
+  fearLevel: int;
+
+  happyLevel: int;
+}
+
+

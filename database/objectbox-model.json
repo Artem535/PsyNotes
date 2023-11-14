@@ -1,0 +1,126 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2563681303075705983",
+      "lastPropertyId": "4:446327609880786134",
+      "name": "Note",
+      "properties": [
+        {
+          "id": "1:3916801052805254985",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2941295353755163147",
+          "name": "time",
+          "type": 10,
+          "flags": 8192
+        },
+        {
+          "id": "3:2190231541836872965",
+          "name": "noteTextId",
+          "indexId": "1:9211145514956631291",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "NoteText"
+        },
+        {
+          "id": "4:446327609880786134",
+          "name": "emotGroupId",
+          "type": 6,
+          "flags": 8192
+        }
+      ]
+    },
+    {
+      "id": "2:700435067374359821",
+      "lastPropertyId": "6:2641336810249675685",
+      "name": "EmotGroup",
+      "properties": [
+        {
+          "id": "1:5077849647987511724",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2440424875721631147",
+          "name": "angryLevel",
+          "type": 5
+        },
+        {
+          "id": "3:1415228420976217454",
+          "name": "sadLevel",
+          "type": 5
+        },
+        {
+          "id": "4:8870100008436453048",
+          "name": "loveLevel",
+          "type": 5
+        },
+        {
+          "id": "5:3800835037971486481",
+          "name": "fearLevel",
+          "type": 5
+        },
+        {
+          "id": "6:2641336810249675685",
+          "name": "happyLevel",
+          "type": 5
+        }
+      ]
+    },
+    {
+      "id": "3:3849537838516242933",
+      "lastPropertyId": "6:7663006198187330067",
+      "name": "NoteText",
+      "properties": [
+        {
+          "id": "1:2712009128759176501",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:195551918347335913",
+          "name": "thoughtsTxt",
+          "type": 9
+        },
+        {
+          "id": "3:7435557165169443847",
+          "name": "behaviorTxt",
+          "type": 9
+        },
+        {
+          "id": "4:7506030314423471133",
+          "name": "bodyTxt",
+          "type": 9
+        },
+        {
+          "id": "5:7765929673853561464",
+          "name": "feelsTxt",
+          "type": 9
+        },
+        {
+          "id": "6:7663006198187330067",
+          "name": "situationTxt",
+          "type": 9
+        }
+      ]
+    }
+  ],
+  "lastEntityId": "3:3849537838516242933",
+  "lastIndexId": "1:9211145514956631291",
+  "lastRelationId": "",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
