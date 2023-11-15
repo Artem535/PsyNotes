@@ -18,6 +18,8 @@ struct Note {
     uint64_t time;
     obx_id noteTextId;
     uint64_t emotGroupId;
+    int8_t emotState;
+    std::string title;
 
     struct _OBX_MetaInfo {
         static constexpr obx_schema_id entityId() { return 1; }
@@ -43,6 +45,8 @@ struct Note_ {
     static const obx::Property<Note, OBXPropertyType_Date> time;
     static const obx::RelationProperty<Note, NoteText> noteTextId;
     static const obx::Property<Note, OBXPropertyType_Long> emotGroupId;
+    static const obx::Property<Note, OBXPropertyType_Byte> emotState;
+    static const obx::Property<Note, OBXPropertyType_String> title;
 };
 
 
@@ -50,11 +54,11 @@ struct EmotGroup_;
 
 struct EmotGroup {
     obx_id id;
-    int32_t angryLevel;
-    int32_t sadLevel;
-    int32_t loveLevel;
-    int32_t fearLevel;
-    int32_t happyLevel;
+    int8_t angryLevel;
+    int8_t sadLevel;
+    int8_t loveLevel;
+    int8_t fearLevel;
+    int8_t happyLevel;
 
     struct _OBX_MetaInfo {
         static constexpr obx_schema_id entityId() { return 2; }
@@ -77,11 +81,11 @@ struct EmotGroup {
 
 struct EmotGroup_ {
     static const obx::Property<EmotGroup, OBXPropertyType_Long> id;
-    static const obx::Property<EmotGroup, OBXPropertyType_Int> angryLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Int> sadLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Int> loveLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Int> fearLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Int> happyLevel;
+    static const obx::Property<EmotGroup, OBXPropertyType_Byte> angryLevel;
+    static const obx::Property<EmotGroup, OBXPropertyType_Byte> sadLevel;
+    static const obx::Property<EmotGroup, OBXPropertyType_Byte> loveLevel;
+    static const obx::Property<EmotGroup, OBXPropertyType_Byte> fearLevel;
+    static const obx::Property<EmotGroup, OBXPropertyType_Byte> happyLevel;
 };
 
 

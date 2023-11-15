@@ -4,7 +4,7 @@ project(PsyNotes VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CXX_STANDARD 11)
+set(CXX_STANDARD 20)
 
 
 # Adding objectbox support
@@ -48,9 +48,9 @@ file(GLOB_RECURSE AssetsFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} assets/* qml/
 list(REMOVE_ITEM AssetsFiles ${QmlFiles})
 
 include_directories(headers
-                    headers/notestorage
-                    headers/database
-                    database)
+    headers/notestorage
+    headers/database
+    database)
 
 file(GLOB_RECURSE SrcFiles  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*)
 file(GLOB_RECURSE HeadersFiles  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} headers/*)
@@ -74,9 +74,8 @@ qt_add_qml_module(appPsyNotes
     URI PsyNotes
     VERSION 1.0
     # uncomment for publishing:
-    #    QML_FILES ${QmlFiles}
-    #    RESOURCES ${AssetsFiles}
-    NO_RESOURCE_TARGET_PATH
+    QML_FILES ${QmlFiles}
+    RESOURCES ${AssetsFiles}
 )
 
 # NOTE: for PUBLISHING, perform the following steps:

@@ -7,39 +7,40 @@ import "pages/diary"
 import "pages/chat"
 import "pages/results"
 import "pages/tests"
+import "logic"
+import "model"
 
 App {
-    id: root
+  id: root
 
-    // Height and width for desktop app.
-    //    height: 640
-    //    width: 480
+  // Height and width for desktop app.
+  //    height: 640
+  //    width: 480
+  MainPage {
+    diaryPage: appDiaryPage
+    chatPage: appChatPage
+    testsPage: appTestPage
+    resultsPage: appResultsPage
+  }
 
-    MainPage {
-        diaryPage: appDiaryPage
-        chatPage: appChatPage
-        testsPage: appTestPage
-        resultsPage: appResultsPage
+  Component {
+    id: appDiaryPage
+    DiaryPage {}
+  }
 
-    }
+  Component {
+    id: appTestPage
+    TestsPage {}
+  }
 
-    Component {
-        id: appDiaryPage
-        DiaryPage{}
-    }
+  Component {
+    id: appResultsPage
+    ResultsPage {}
+  }
 
-    Component {
-        id: appTestPage
-        TestsPage {}
-    }
+  Component {
+    id: appChatPage
+    ChatPage {}
+  }
 
-    Component {
-        id: appResultsPage
-        ResultsPage {}
-    }
-
-    Component {
-        id: appChatPage
-        ChatPage{}
-    }
 }

@@ -6,14 +6,19 @@ const obx::Property<Note, OBXPropertyType_Long> Note_::id(1);
 const obx::Property<Note, OBXPropertyType_Date> Note_::time(2);
 const obx::RelationProperty<Note, NoteText> Note_::noteTextId(3);
 const obx::Property<Note, OBXPropertyType_Long> Note_::emotGroupId(4);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::emotState(5);
+const obx::Property<Note, OBXPropertyType_String> Note_::title(6);
 
 void Note::_OBX_MetaInfo::toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, const Note& object) {
     fbb.Clear();
+    auto offsettitle = fbb.CreateString(object.title);
     flatbuffers::uoffset_t fbStart = fbb.StartTable();
     fbb.TrackField(4, fbb.PushElement<obx_id>(object.id));
     fbb.TrackField(6, fbb.PushElement<uint64_t>(object.time));
     fbb.TrackField(8, fbb.PushElement<obx_id>(object.noteTextId));
     fbb.TrackField(10, fbb.PushElement<uint64_t>(object.emotGroupId));
+    fbb.TrackField(12, fbb.PushElement<int8_t>(object.emotState));
+    fbb.AddOffset(14, offsettitle);
     flatbuffers::Offset<flatbuffers::Table> offset;
     offset.o = fbb.EndTable(fbStart);
     fbb.Finish(offset);
@@ -38,25 +43,30 @@ void Note::_OBX_MetaInfo::fromFlatBuffer(const void* data, size_t, Note& outObje
     outObject.time = table->GetField<uint64_t>(6, 0);
     outObject.noteTextId = table->GetField<obx_id>(8, 0);
     outObject.emotGroupId = table->GetField<uint64_t>(10, 0);
+    outObject.emotState = table->GetField<int8_t>(12, 0);
+    {
+        auto* ptr = table->GetPointer<const flatbuffers::String*>(14);
+        if (ptr) outObject.title.assign(ptr->c_str());
+    }
     
 }
 
 const obx::Property<EmotGroup, OBXPropertyType_Long> EmotGroup_::id(1);
-const obx::Property<EmotGroup, OBXPropertyType_Int> EmotGroup_::angryLevel(2);
-const obx::Property<EmotGroup, OBXPropertyType_Int> EmotGroup_::sadLevel(3);
-const obx::Property<EmotGroup, OBXPropertyType_Int> EmotGroup_::loveLevel(4);
-const obx::Property<EmotGroup, OBXPropertyType_Int> EmotGroup_::fearLevel(5);
-const obx::Property<EmotGroup, OBXPropertyType_Int> EmotGroup_::happyLevel(6);
+const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::angryLevel(2);
+const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::sadLevel(3);
+const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::loveLevel(4);
+const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::fearLevel(5);
+const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::happyLevel(6);
 
 void EmotGroup::_OBX_MetaInfo::toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, const EmotGroup& object) {
     fbb.Clear();
     flatbuffers::uoffset_t fbStart = fbb.StartTable();
     fbb.TrackField(4, fbb.PushElement<obx_id>(object.id));
-    fbb.TrackField(6, fbb.PushElement<int32_t>(object.angryLevel));
-    fbb.TrackField(8, fbb.PushElement<int32_t>(object.sadLevel));
-    fbb.TrackField(10, fbb.PushElement<int32_t>(object.loveLevel));
-    fbb.TrackField(12, fbb.PushElement<int32_t>(object.fearLevel));
-    fbb.TrackField(14, fbb.PushElement<int32_t>(object.happyLevel));
+    fbb.TrackField(6, fbb.PushElement<int8_t>(object.angryLevel));
+    fbb.TrackField(8, fbb.PushElement<int8_t>(object.sadLevel));
+    fbb.TrackField(10, fbb.PushElement<int8_t>(object.loveLevel));
+    fbb.TrackField(12, fbb.PushElement<int8_t>(object.fearLevel));
+    fbb.TrackField(14, fbb.PushElement<int8_t>(object.happyLevel));
     flatbuffers::Offset<flatbuffers::Table> offset;
     offset.o = fbb.EndTable(fbStart);
     fbb.Finish(offset);
@@ -78,11 +88,11 @@ void EmotGroup::_OBX_MetaInfo::fromFlatBuffer(const void* data, size_t, EmotGrou
     const auto* table = flatbuffers::GetRoot<flatbuffers::Table>(data);
     assert(table);
     outObject.id = table->GetField<obx_id>(4, 0);
-    outObject.angryLevel = table->GetField<int32_t>(6, 0);
-    outObject.sadLevel = table->GetField<int32_t>(8, 0);
-    outObject.loveLevel = table->GetField<int32_t>(10, 0);
-    outObject.fearLevel = table->GetField<int32_t>(12, 0);
-    outObject.happyLevel = table->GetField<int32_t>(14, 0);
+    outObject.angryLevel = table->GetField<int8_t>(6, 0);
+    outObject.sadLevel = table->GetField<int8_t>(8, 0);
+    outObject.loveLevel = table->GetField<int8_t>(10, 0);
+    outObject.fearLevel = table->GetField<int8_t>(12, 0);
+    outObject.happyLevel = table->GetField<int8_t>(14, 0);
     
 }
 

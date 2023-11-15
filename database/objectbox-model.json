@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:2563681303075705983",
-      "lastPropertyId": "4:446327609880786134",
+      "lastPropertyId": "6:4903184536309275237",
       "name": "Note",
       "properties": [
         {
@@ -33,6 +33,16 @@
           "name": "emotGroupId",
           "type": 6,
           "flags": 8192
+        },
+        {
+          "id": "5:8743432929941975893",
+          "name": "emotState",
+          "type": 2
+        },
+        {
+          "id": "6:4903184536309275237",
+          "name": "title",
+          "type": 9
         }
       ]
     },
@@ -50,27 +60,27 @@
         {
           "id": "2:2440424875721631147",
           "name": "angryLevel",
-          "type": 5
+          "type": 2
         },
         {
           "id": "3:1415228420976217454",
           "name": "sadLevel",
-          "type": 5
+          "type": 2
         },
         {
           "id": "4:8870100008436453048",
           "name": "loveLevel",
-          "type": 5
+          "type": 2
         },
         {
           "id": "5:3800835037971486481",
           "name": "fearLevel",
-          "type": 5
+          "type": 2
         },
         {
           "id": "6:2641336810249675685",
           "name": "happyLevel",
-          "type": 5
+          "type": 2
         }
       ]
     },
