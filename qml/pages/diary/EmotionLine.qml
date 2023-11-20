@@ -7,36 +7,23 @@ Item {
     id: root
     implicitHeight: 30
     implicitWidth: 100
-    property alias emotName: item.text
-    property var emotArray: []
+    property alias emotName: emotName.text
+    property alias emotValue: slider.value
 
-    AppListItem {
-        id: item
+    ColumnLayout{
         anchors.fill: parent
-        showDisclosure: false
-        text: ""
-
-        JsonListModel {
-            id: jsonModel
-            source: emotArray
+        AppText {
+            id: emotName
+            text: "NOT SET"
+            Layout.alignment: Qt.AlignCenter
         }
 
-        rightItem: Row {
-            width: item.width * 0.5
-            height: item.height
-            Repeater {
-                model: jsonModel
-                delegate: AppCheckBox {
-                    width: parent.width / 3
-                    text: model.name
-                    checked: model.selected
-                    anchors.verticalCenter: parent.verticalCenter
-                    onCheckedChanged: {
-                        var index = jsonModel.indexOf("name", model.name)
-                        emotArray[index]["selected"] = checked
-                    }
-                }
-            }
+        AppSlider {
+            id: slider
+            value: 0
+            from: 0
+            to: 3
+            Layout.fillWidth: true
         }
     }
 }

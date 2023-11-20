@@ -1,12 +1,19 @@
 table Note {
   id: ulong;
+  visible: bool;
+
   title: string;
   /// objectbox:date
   time: ulong;
   /// objectbox:relation=NoteText
   noteTextId: ulong;
-  emotGroupId: ulong;
+
   emotState: byte;
+  angryLevel: byte;
+  sadLevel: byte;
+  loveLevel: byte;
+  fearLevel: byte;
+  happyLevel: byte;
 }
 
 table NoteText {
@@ -17,14 +24,4 @@ table NoteText {
   feelsTxt: string;
   situationTxt: string;
 }
-
-table EmotGroup {
-  id: ulong;
-  angryLevel: byte;
-  sadLevel: byte;
-  loveLevel: byte;
-  fearLevel: byte;
-  happyLevel: byte;
-}
-
 

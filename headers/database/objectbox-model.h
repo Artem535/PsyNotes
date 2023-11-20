@@ -31,11 +31,15 @@ static inline OBX_model* create_obx_model() {
     obx_model_property(model, "noteTextId", OBXPropertyType_Relation, 3, 2190231541836872965);
     obx_model_property_flags(model, (OBXPropertyFlags) (OBXPropertyFlags_INDEXED | OBXPropertyFlags_INDEX_PARTIAL_SKIP_ZERO));
     obx_model_property_relation(model, "NoteText", 1, 9211145514956631291);
-    obx_model_property(model, "emotGroupId", OBXPropertyType_Long, 4, 446327609880786134);
-    obx_model_property_flags(model, OBXPropertyFlags_UNSIGNED);
     obx_model_property(model, "emotState", OBXPropertyType_Byte, 5, 8743432929941975893);
     obx_model_property(model, "title", OBXPropertyType_String, 6, 4903184536309275237);
-    obx_model_entity_last_property_id(model, 6, 4903184536309275237);
+    obx_model_property(model, "angryLevel", OBXPropertyType_Byte, 7, 5339475715653071198);
+    obx_model_property(model, "sadLevel", OBXPropertyType_Byte, 8, 1049456570104758233);
+    obx_model_property(model, "loveLevel", OBXPropertyType_Byte, 9, 7073206693959372174);
+    obx_model_property(model, "fearLevel", OBXPropertyType_Byte, 10, 2044406769887231312);
+    obx_model_property(model, "happyLevel", OBXPropertyType_Byte, 11, 7955041468267110982);
+    obx_model_property(model, "visible", OBXPropertyType_Bool, 12, 1390583893200069046);
+    obx_model_entity_last_property_id(model, 12, 1390583893200069046);
     
     obx_model_entity(model, "EmotGroup", 2, 700435067374359821);
     obx_model_property(model, "id", OBXPropertyType_Long, 1, 5077849647987511724);
@@ -58,7 +62,7 @@ static inline OBX_model* create_obx_model() {
     obx_model_entity_last_property_id(model, 6, 7663006198187330067);
     
     obx_model_last_entity_id(model, 3, 3849537838516242933);
-    obx_model_last_index_id(model, 1, 9211145514956631291);
+    obx_model_last_index_id(model, 2, 1168334897493586579);
     return model; // NOTE: the returned model will contain error information if an error occurred.
 }
 

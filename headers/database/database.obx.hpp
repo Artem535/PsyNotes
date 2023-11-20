@@ -17,9 +17,14 @@ struct Note {
     obx_id id;
     uint64_t time;
     obx_id noteTextId;
-    uint64_t emotGroupId;
     int8_t emotState;
     std::string title;
+    int8_t angryLevel;
+    int8_t sadLevel;
+    int8_t loveLevel;
+    int8_t fearLevel;
+    int8_t happyLevel;
+    bool visible;
 
     struct _OBX_MetaInfo {
         static constexpr obx_schema_id entityId() { return 1; }
@@ -44,48 +49,14 @@ struct Note_ {
     static const obx::Property<Note, OBXPropertyType_Long> id;
     static const obx::Property<Note, OBXPropertyType_Date> time;
     static const obx::RelationProperty<Note, NoteText> noteTextId;
-    static const obx::Property<Note, OBXPropertyType_Long> emotGroupId;
     static const obx::Property<Note, OBXPropertyType_Byte> emotState;
     static const obx::Property<Note, OBXPropertyType_String> title;
-};
-
-
-struct EmotGroup_;
-
-struct EmotGroup {
-    obx_id id;
-    int8_t angryLevel;
-    int8_t sadLevel;
-    int8_t loveLevel;
-    int8_t fearLevel;
-    int8_t happyLevel;
-
-    struct _OBX_MetaInfo {
-        static constexpr obx_schema_id entityId() { return 2; }
-    
-        static void setObjectId(EmotGroup& object, obx_id newId) { object.id = newId; }
-    
-        /// Write given object to the FlatBufferBuilder
-        static void toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, const EmotGroup& object);
-    
-        /// Read an object from a valid FlatBuffer
-        static EmotGroup fromFlatBuffer(const void* data, size_t size);
-    
-        /// Read an object from a valid FlatBuffer
-        static std::unique_ptr<EmotGroup> newFromFlatBuffer(const void* data, size_t size);
-    
-        /// Read an object from a valid FlatBuffer
-        static void fromFlatBuffer(const void* data, size_t size, EmotGroup& outObject);
-    };
-};
-
-struct EmotGroup_ {
-    static const obx::Property<EmotGroup, OBXPropertyType_Long> id;
-    static const obx::Property<EmotGroup, OBXPropertyType_Byte> angryLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Byte> sadLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Byte> loveLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Byte> fearLevel;
-    static const obx::Property<EmotGroup, OBXPropertyType_Byte> happyLevel;
+    static const obx::Property<Note, OBXPropertyType_Byte> angryLevel;
+    static const obx::Property<Note, OBXPropertyType_Byte> sadLevel;
+    static const obx::Property<Note, OBXPropertyType_Byte> loveLevel;
+    static const obx::Property<Note, OBXPropertyType_Byte> fearLevel;
+    static const obx::Property<Note, OBXPropertyType_Byte> happyLevel;
+    static const obx::Property<Note, OBXPropertyType_Bool> visible;
 };
 
 

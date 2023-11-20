@@ -5,43 +5,45 @@ import "../../logic"
 import "../../model"
 
 AppPage {
-  title: "Diary"
+    title: "Diary"
 
-  property alias notes: model.noteData
+    property alias notes: dataModel.noteData
 
-  AppListView {
-    model: notes
-    section.property: "day"
-    section.delegate: SimpleSection {}
-    delegate: AppListItem {
-      rightText: modelData.time
-      text: modelData.title
-      onSelected: {
-        navigationStack.push(notePage)
-      }
+    AppListView {
+        model: notes
+        section.property: "day"
+        section.delegate: SimpleSection {}
+        delegate: AppListItem {
+            rightText: modelData.time
+            text: modelData.title
+            onSelected: {
+                navigationStack.push(notePage, {
+                                         "noteId": modelData.id
+                                     })
+            }
+        }
     }
-  }
 
-  FloatingActionButton {
-    iconType: IconType.plus
-    visible: true
-  }
+    FloatingActionButton {
+        iconType: IconType.plus
+        visible: true
+    }
 
-  onPushed: {
-    logic.fetchNoteData()
-  }
+    onPushed: {
+        logic.fetchNoteData()
+    }
 
-  NoteModel {
-    id: model
-    dispatcher: logic
-  }
+    NoteModel {
+        id: dataModel
+        dispatcher: logic
+    }
 
-  Logic {
-    id: logic
-  }
+    Logic {
+        id: logic
+    }
 
-  Component {
-    id: notePage
-    NotePage {}
-  }
+    Component {
+        id: notePage
+        NotePage {}
+    }
 }

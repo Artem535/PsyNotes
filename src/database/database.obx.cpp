@@ -5,9 +5,14 @@
 const obx::Property<Note, OBXPropertyType_Long> Note_::id(1);
 const obx::Property<Note, OBXPropertyType_Date> Note_::time(2);
 const obx::RelationProperty<Note, NoteText> Note_::noteTextId(3);
-const obx::Property<Note, OBXPropertyType_Long> Note_::emotGroupId(4);
 const obx::Property<Note, OBXPropertyType_Byte> Note_::emotState(5);
 const obx::Property<Note, OBXPropertyType_String> Note_::title(6);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::angryLevel(7);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::sadLevel(8);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::loveLevel(9);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::fearLevel(10);
+const obx::Property<Note, OBXPropertyType_Byte> Note_::happyLevel(11);
+const obx::Property<Note, OBXPropertyType_Bool> Note_::visible(12);
 
 void Note::_OBX_MetaInfo::toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, const Note& object) {
     fbb.Clear();
@@ -16,9 +21,14 @@ void Note::_OBX_MetaInfo::toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, cons
     fbb.TrackField(4, fbb.PushElement<obx_id>(object.id));
     fbb.TrackField(6, fbb.PushElement<uint64_t>(object.time));
     fbb.TrackField(8, fbb.PushElement<obx_id>(object.noteTextId));
-    fbb.TrackField(10, fbb.PushElement<uint64_t>(object.emotGroupId));
     fbb.TrackField(12, fbb.PushElement<int8_t>(object.emotState));
     fbb.AddOffset(14, offsettitle);
+    fbb.TrackField(16, fbb.PushElement<int8_t>(object.angryLevel));
+    fbb.TrackField(18, fbb.PushElement<int8_t>(object.sadLevel));
+    fbb.TrackField(20, fbb.PushElement<int8_t>(object.loveLevel));
+    fbb.TrackField(22, fbb.PushElement<int8_t>(object.fearLevel));
+    fbb.TrackField(24, fbb.PushElement<int8_t>(object.happyLevel));
+    fbb.TrackField(26, fbb.PushElement<uint8_t>(object.visible ? 1 : 0));
     flatbuffers::Offset<flatbuffers::Table> offset;
     offset.o = fbb.EndTable(fbStart);
     fbb.Finish(offset);
@@ -42,57 +52,17 @@ void Note::_OBX_MetaInfo::fromFlatBuffer(const void* data, size_t, Note& outObje
     outObject.id = table->GetField<obx_id>(4, 0);
     outObject.time = table->GetField<uint64_t>(6, 0);
     outObject.noteTextId = table->GetField<obx_id>(8, 0);
-    outObject.emotGroupId = table->GetField<uint64_t>(10, 0);
     outObject.emotState = table->GetField<int8_t>(12, 0);
     {
         auto* ptr = table->GetPointer<const flatbuffers::String*>(14);
         if (ptr) outObject.title.assign(ptr->c_str());
     }
-    
-}
-
-const obx::Property<EmotGroup, OBXPropertyType_Long> EmotGroup_::id(1);
-const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::angryLevel(2);
-const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::sadLevel(3);
-const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::loveLevel(4);
-const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::fearLevel(5);
-const obx::Property<EmotGroup, OBXPropertyType_Byte> EmotGroup_::happyLevel(6);
-
-void EmotGroup::_OBX_MetaInfo::toFlatBuffer(flatbuffers::FlatBufferBuilder& fbb, const EmotGroup& object) {
-    fbb.Clear();
-    flatbuffers::uoffset_t fbStart = fbb.StartTable();
-    fbb.TrackField(4, fbb.PushElement<obx_id>(object.id));
-    fbb.TrackField(6, fbb.PushElement<int8_t>(object.angryLevel));
-    fbb.TrackField(8, fbb.PushElement<int8_t>(object.sadLevel));
-    fbb.TrackField(10, fbb.PushElement<int8_t>(object.loveLevel));
-    fbb.TrackField(12, fbb.PushElement<int8_t>(object.fearLevel));
-    fbb.TrackField(14, fbb.PushElement<int8_t>(object.happyLevel));
-    flatbuffers::Offset<flatbuffers::Table> offset;
-    offset.o = fbb.EndTable(fbStart);
-    fbb.Finish(offset);
-}
-
-EmotGroup EmotGroup::_OBX_MetaInfo::fromFlatBuffer(const void* data, size_t size) {
-    EmotGroup object;
-    fromFlatBuffer(data, size, object);
-    return object;
-}
-
-std::unique_ptr<EmotGroup> EmotGroup::_OBX_MetaInfo::newFromFlatBuffer(const void* data, size_t size) {
-    auto object = std::unique_ptr<EmotGroup>(new EmotGroup());
-    fromFlatBuffer(data, size, *object);
-    return object;
-}
-
-void EmotGroup::_OBX_MetaInfo::fromFlatBuffer(const void* data, size_t, EmotGroup& outObject) {
-    const auto* table = flatbuffers::GetRoot<flatbuffers::Table>(data);
-    assert(table);
-    outObject.id = table->GetField<obx_id>(4, 0);
-    outObject.angryLevel = table->GetField<int8_t>(6, 0);
-    outObject.sadLevel = table->GetField<int8_t>(8, 0);
-    outObject.loveLevel = table->GetField<int8_t>(10, 0);
-    outObject.fearLevel = table->GetField<int8_t>(12, 0);
-    outObject.happyLevel = table->GetField<int8_t>(14, 0);
+    outObject.angryLevel = table->GetField<int8_t>(16, 0);
+    outObject.sadLevel = table->GetField<int8_t>(18, 0);
+    outObject.loveLevel = table->GetField<int8_t>(20, 0);
+    outObject.fearLevel = table->GetField<int8_t>(22, 0);
+    outObject.happyLevel = table->GetField<int8_t>(24, 0);
+    outObject.visible = table->GetField<uint8_t>(26, 0) != 0;
     
 }
 
