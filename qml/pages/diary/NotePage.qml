@@ -7,8 +7,8 @@ FlickablePage {
   id: root
   title: "Note"
 
-  property int noteId: 0
-  property var noteDetails: ({})
+  property int noteId: -1
+  property var noteDetails: [{}]
 
   onNoteIdChanged: {
     logic.getNoteDetails(noteId)
@@ -18,45 +18,59 @@ FlickablePage {
 
   flickable.contentHeight: layout.height
 
+  rightBarItem: NavigationBarItem {
+    IconButtonBarItem {
+      id: saveButton
+      anchors.centerIn: parent
+      iconSize: dp(Theme.navigationBar.defaultIconSize)
+      iconType: IconType.save
+
+      onClicked: {
+        emotSpectrum.syncModeToValue()
+        jsonModel.syncModelToSource()
+        logic.saveNote(noteId, {
+                         "emotState": currentState.value,
+                         "emotTexts": jsonModel.source,
+                         "emotCatg": emotSpectrum.emotCategories
+                       })
+        navigationStack.pop()
+      }
+    }
+  }
+
+  JsonListModel {
+    id: jsonModel
+    source: noteDetails["emotTexts"]
+  }
+
   ColumnLayout {
     id: layout
     spacing: 40
     width: parent.width
 
     EmotionState {
+      id: currentState
       Layout.fillWidth: true
       Layout.preferredHeight: 70
-      value: noteDetails["emotLevel"]
+      value: noteDetails["emotState"]
     }
 
-    EmotionSelectorDynamic {
+    EmotionSpectrum {
+      id: emotSpectrum
       Layout.fillWidth: true
       Layout.preferredHeight: 500
-      emotCategories: noteDetails["emotLevels"]
+      emotCategories: noteDetails["emotCatg"]
     }
 
-    AppTextArea {
-      title: qsTr("Situation?")
-      Layout.fillWidth: true
-      text: noteDetails["situation"]
-    }
-
-    AppTextArea {
-      title: qsTr("What are you think?")
-      Layout.fillWidth: true
-      text: noteDetails["thoughts"]
-    }
-
-    AppTextArea {
-      title: qsTr("Your behaviour?")
-      Layout.fillWidth: true
-      text: noteDetails["behavior"]
-    }
-
-    AppTextArea {
-      title: qsTr("What are you feel in body?")
-      Layout.fillWidth: true
-      text: noteDetails["body"]
+    Repeater {
+      model: jsonModel
+      AppTextArea {
+        id: textSituation
+        title: model.secondValue
+        text: model.value
+        Layout.fillWidth: true
+        onTextChanged: jsonModel.setProperty(index, "value", text)
+      }
     }
   }
 }

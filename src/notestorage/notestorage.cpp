@@ -1,5 +1,4 @@
 #include "notestorage/notestorage.h"
-#include "notestorage.h"
 
 NoteStorage::NoteStorage(QObject *parent) : QObject{parent} {
   obx::Options options{create_obx_model()};
@@ -32,11 +31,6 @@ QVector<QVariant> NoteStorage::getNoteList() {
 
 QVector<QVariant>
 NoteStorage::prepareEmotObject(const std::unique_ptr<Note> &note) const {
-  const auto getObject = [](const QString &emotName,
-                            const uint8_t &level) -> QVariantMap {
-    return {{"name", emotName}, {"level", level}};
-  };
-
   return {getObject(emt::emotAngry, note->angryLevel),
           getObject(emt::emotSad, note->sadLevel),
           getObject(emt::emotFear, note->fearLevel),
@@ -44,26 +38,81 @@ NoteStorage::prepareEmotObject(const std::unique_ptr<Note> &note) const {
           getObject(emt::emotLove, note->loveLevel)};
 }
 
+QVector<QVariant>
+NoteStorage::prepareTextObject(const std::unique_ptr<NoteText> &text) const {
+  return {
+      getObject("body", QString::fromStdString(text->bodyTxt), quest::body),
+      getObject("behavior", QString::fromStdString(text->behaviorTxt),
+                quest::behavior),
+      getObject("situation", QString::fromStdString(text->situationTxt),
+                quest::situation),
+      getObject("thoughts", QString::fromStdString(text->thoughtsTxt),
+                quest::thoughts),
+  };
+}
+
+QVariantMap NoteStorage::getObject(const QString &key,
+                                   const QVariant &value) const {
+  return {{"name", key}, {"value", value}};
+}
+QVariantMap NoteStorage::getObject(const QString &key, const QVariant &value,
+                                   const QVariant &addtValue) const {
+  return {{"name", key}, {"value", value}, {"secondValue", addtValue}};
+}
+
 QVariantMap NoteStorage::getNoteDetails(const obx_id &noteId) const {
-  const auto note = noteId == constants::database::emptyNoteID
+
+  const auto note = noteId == constants::database::defaultNoteID
                         ? getEmptyNote()
                         : mNoteBase->get(noteId);
 
-  return {{"behavior", ""},
-          {"emotLevel", -1},
-          {"situation", "TEST_STRING"},
-          {"body", "TEST_STRING"},
-          {"thoughts", "TEST_STRING"},
-          {"body", "TEST_STRING"},
-          {"emotLevels", prepareEmotObject(note)}};
+  const auto text = note->noteTextId == constants::database::defaultNoteID
+                        ? getEmptyNoteDetails()
+                        : mNoteDetailsBase->get(note->noteTextId);
+
+  return {{"emotState", note->emotState},
+          {"emotTexts", prepareTextObject(text)},
+          {"emotCatg", prepareEmotObject(note)}};
 }
 
 std::unique_ptr<Note> NoteStorage::getEmptyNote() const {
-  auto note = std::make_unique<Note>();
-  note->id = constants::database::emptyNoteID;
-  return note;
+  return std::make_unique<Note>(
+      Note{.id = constants::database::defaultNoteID,
+           .noteTextId = constants::database::defaultNoteID});
+}
+
+std::unique_ptr<NoteText> NoteStorage::getEmptyNoteDetails() const {
+  return std::make_unique<NoteText>(
+      NoteText{.id = constants::database::defaultNoteID});
+}
+
+void NoteStorage::parseEmotCatg(const QVariantList &data, Note &note)
+{
+
 }
 
 QVariantMap NoteStorage::getDefaultNote() const {
-  return getNoteDetails(constants::database::emptyNoteID);
+  return getNoteDetails(constants::database::defaultNoteID);
+}
+
+short NoteStorage::getDefaultNoteId() {
+  return constants::database::defaultNoteID;
+}
+
+void NoteStorage::addNewNote(const int &id, const QVariant &note) {
+  const auto varMap = note.value<QVariantMap>();
+
+  bool isCorrectKeys = varMap.contains("emotState");
+  isCorrectKeys &= varMap.contains("emotTexts");
+  isCorrectKeys &= varMap.contains("emotCatg");
+
+  if (!isCorrectKeys) {
+    qWarning() << "NoteStorage::addNewNote. "
+                  "Attempts to save an object that is not a `Note`.";
+    return;
+  }
+
+  const auto emotState = varMap["emotState"].value<int8_t>();
+  const auto emotTexts = varMap["emotTexts"];
+  const auto emotCatg = varMap["emotCatg"];
 }

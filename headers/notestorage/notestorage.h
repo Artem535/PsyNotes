@@ -12,6 +12,7 @@
 #include <utility>
 
 namespace emt = constants::emotions;
+namespace quest = constants::questionsLabels;
 
 class NoteStorage : public QObject {
   Q_OBJECT
@@ -21,6 +22,8 @@ public:
   Q_INVOKABLE QVector<QVariant> getNoteList();
   Q_INVOKABLE QVariantMap getNoteDetails(const obx_id &noteId) const;
   Q_INVOKABLE QVariantMap getDefaultNote() const;
+  Q_INVOKABLE short getDefaultNoteId();
+  Q_INVOKABLE void addNewNote(const int &id, const QVariant &note);
 
 private:
   std::unique_ptr<obx::Box<Note>> mNoteBase;
@@ -29,5 +32,12 @@ private:
   obx_id mIdDefaultNote;
 
   QVector<QVariant> prepareEmotObject(const std::unique_ptr<Note> &note) const;
+  QVector<QVariant>
+  prepareTextObject(const std::unique_ptr<NoteText> &note) const;
+  QVariantMap getObject(const QString &key, const QVariant &value) const;
+  QVariantMap getObject(const QString &key, const QVariant &value,
+                        const QVariant &addtValue) const;
   std::unique_ptr<Note> getEmptyNote() const;
+  std::unique_ptr<NoteText> getEmptyNoteDetails() const;
+  void parseEmotCatg(const QVariantList &data, Note &note);
 };

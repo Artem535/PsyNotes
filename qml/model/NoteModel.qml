@@ -8,6 +8,7 @@ Item {
   property alias dispatcher: logicConnection.target
   readonly property alias noteData: _.noteData
   readonly property alias noteDetails: _.noteDetails
+  readonly property alias defaultNoteId: _.defaultNoteId
 
   Connections {
     id: logicConnection
@@ -19,6 +20,18 @@ Item {
     onGetNoteDetails: id => {
                         _.noteDetails = storage.getNoteDetails(id)
                       }
+
+    onGetDefaultNote: {
+      _.noteDatails = storage.getDefaultNote()
+    }
+
+    onGetDefaultNoteId: {
+      _.defaultNoteId = storage.getDefaultNoteId()
+    }
+
+    onSaveNote: (id, note) => {
+                  storage.addNewNote(id, note)
+                }
   }
 
   NoteStorage {
@@ -30,5 +43,6 @@ Item {
     id: _
     property var noteData: []
     property var noteDetails: ({})
+    property int defaultNoteId: 0
   }
 }
