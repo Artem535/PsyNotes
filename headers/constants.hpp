@@ -13,7 +13,7 @@ constexpr char emotSad[] = "SAD";
 constexpr char emotHappy[] = "HAPPY";
 constexpr char emotLove[] = "LOVE";
 constexpr std::array<std::string_view, 5> emotList = {
-    emotAngry, emotFear, emot2Happy, emotLove, emotSad};
+    emotAngry, emotFear, emotHappy, emotLove, emotSad};
 } // namespace emotions
 
 namespace questionsLabels {

@@ -28,10 +28,11 @@ FlickablePage {
       onClicked: {
         emotSpectrum.syncModeToValue()
         jsonModel.syncModelToSource()
+        console.log(emotSpectrum.emotCategories)
         logic.saveNote(noteId, {
                          "emotState": currentState.value,
                          "emotTexts": jsonModel.source,
-                         "emotCatg": emotSpectrum.emotCategories
+                         "emotCtg": emotSpectrum.emotCategories
                        })
         navigationStack.pop()
       }
@@ -59,7 +60,7 @@ FlickablePage {
       id: emotSpectrum
       Layout.fillWidth: true
       Layout.preferredHeight: 500
-      emotCategories: noteDetails["emotCatg"]
+      emotCategories: noteDetails["emotCtg"]
     }
 
     Repeater {

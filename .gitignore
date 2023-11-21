@@ -6,6 +6,8 @@ build
 # Prerequisites
 *.d
 
+CMakeLists.txt.user*
+
 # Compiled Object files
 *.slo
 *.lo

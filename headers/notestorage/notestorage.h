@@ -10,6 +10,8 @@
 #include <database/objectbox-model.h>
 #include <objectbox.hpp>
 #include <utility>
+#include <functional>
+#include <cstdint>
 
 namespace emt = constants::emotions;
 namespace quest = constants::questionsLabels;
@@ -25,7 +27,9 @@ public:
   Q_INVOKABLE short getDefaultNoteId();
   Q_INVOKABLE void addNewNote(const int &id, const QVariant &note);
 
-private:
+  
+
+  private:
   std::unique_ptr<obx::Box<Note>> mNoteBase;
   std::unique_ptr<obx::Box<NoteText>> mNoteDetailsBase;
   std::unique_ptr<obx::Store> mStore;
@@ -39,5 +43,6 @@ private:
                         const QVariant &addtValue) const;
   std::unique_ptr<Note> getEmptyNote() const;
   std::unique_ptr<NoteText> getEmptyNoteDetails() const;
-  void parseEmotCatg(const QVariantList &data, Note &note);
+  
+  void parseEmotCtg(const QVariant &data, Note &note);
 };

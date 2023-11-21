@@ -72,7 +72,7 @@ QVariantMap NoteStorage::getNoteDetails(const obx_id &noteId) const {
 
   return {{"emotState", note->emotState},
           {"emotTexts", prepareTextObject(text)},
-          {"emotCatg", prepareEmotObject(note)}};
+          {"emotCtg", prepareEmotObject(note)}};
 }
 
 std::unique_ptr<Note> NoteStorage::getEmptyNote() const {
@@ -86,8 +86,6 @@ std::unique_ptr<NoteText> NoteStorage::getEmptyNoteDetails() const {
       NoteText{.id = constants::database::defaultNoteID});
 }
 
-void NoteStorage::parseEmotCatg(const QVariantList &data, Note &note) {}
-
 QVariantMap NoteStorage::getDefaultNote() const {
   return getNoteDetails(constants::database::defaultNoteID);
 }
@@ -97,11 +95,13 @@ short NoteStorage::getDefaultNoteId() {
 }
 
 void NoteStorage::addNewNote(const int &id, const QVariant &note) {
-  const auto varMap = note.value<QVariantMap>();
+  const auto type = note.typeName();
+  const QVariantMap varMap = note.toMap();
+  qDebug() << varMap;
 
   bool isCorrectKeys = varMap.contains("emotState");
   isCorrectKeys &= varMap.contains("emotTexts");
-  isCorrectKeys &= varMap.contains("emotCatg");
+  isCorrectKeys &= varMap.contains("emotCtg");
 
   if (!isCorrectKeys) {
     qWarning() << "NoteStorage::addNewNote. "
@@ -109,7 +109,29 @@ void NoteStorage::addNewNote(const int &id, const QVariant &note) {
     return;
   }
 
-  const auto emotState = varMap["emotState"].value<int8_t>();
-  const auto emotTexts = varMap["emotTexts"];
-  const auto emotCatg = varMap["emotCatg"];
+  Note resultNote;
+  //  const auto emotState = varMap["emotState"].toInt();
+  //  const QJsonArray emotTexts{varMap["emotTexts"].toJsonArray()};
+  parseEmotCtg(varMap["emotCtg"], resultNote);
+}
+
+void NoteStorage::parseEmotCtg(const QVariant &data, Note &note) {
+  const auto emotCtg{data.toJsonArray()};
+  QMap<QString, std::reference_wrapper<int8_t>> emotCtgMap{
+      {emt::emotAngry, std::ref(note.angryLevel)},
+      {emt::emotSad, std::ref(note.sadLevel)},
+      {emt::emotFear, std::ref(note.fearLevel)},
+      {emt::emotHappy, std::ref(note.happyLevel)},
+      {emt::emotLove, std::ref(note.loveLevel)},
+  };
+
+  // NOTE: We need `emotCtg[0].toArray()` because we have nested arrays.
+  for (const QJsonValue &item : emotCtg[0].toArray()) {
+    const QJsonObject emot{item.toObject()};
+    const QString emotName{emot["name"].toString()};
+    const double emotValue{emot["value"].toDouble()};
+    if (auto it = emotCtgMap.find(emotName); it != emotCtgMap.end()) {
+      it->get() = static_cast<int8_t>(emotValue);
+    }
+  }
 }
