@@ -86,10 +86,7 @@ std::unique_ptr<NoteText> NoteStorage::getEmptyNoteDetails() const {
       NoteText{.id = constants::database::defaultNoteID});
 }
 
-void NoteStorage::parseEmotCatg(const QVariantList &data, Note &note)
-{
-
-}
+void NoteStorage::parseEmotCatg(const QVariantList &data, Note &note) {}
 
 QVariantMap NoteStorage::getDefaultNote() const {
   return getNoteDetails(constants::database::defaultNoteID);
