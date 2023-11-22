@@ -26,14 +26,12 @@ FlickablePage {
       iconType: IconType.save
 
       onClicked: {
-        emotSpectrum.syncModeToValue()
-        jsonModel.syncModelToSource()
-        console.log(emotSpectrum.emotCategories)
         logic.saveNote(noteId, {
                          "emotState": currentState.value,
-                         "emotTexts": jsonModel.source,
+                         "emotTexts": noteDetails["emotTexts"],
                          "emotCtg": emotSpectrum.emotCategories
                        })
+        logic.fetchNoteData()
         navigationStack.pop()
       }
     }
@@ -70,7 +68,7 @@ FlickablePage {
         title: model.secondValue
         text: model.value
         Layout.fillWidth: true
-        onTextChanged: jsonModel.setProperty(index, "value", text)
+        onTextChanged: noteDetails["emotTexts"][index].value = text
       }
     }
   }

@@ -14,6 +14,7 @@ Item {
     id: logicConnection
 
     onFetchNoteData: {
+      _.noteData.length = 0
       _.noteData = storage.getNoteList()
     }
 
@@ -30,7 +31,7 @@ Item {
     }
 
     onSaveNote: (id, note) => {
-                  storage.addNewNote(id, note)
+                  var noteId = storage.addNewNote(id, note)
                 }
   }
 

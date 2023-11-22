@@ -9,5 +9,7 @@ Item {
 
   signal getDefaultNoteId
 
+  signal storageUpdated
+
   signal saveNote(int id, var note)
 }

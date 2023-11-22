@@ -7,10 +7,8 @@ import "../../model"
 AppPage {
   title: "Diary"
 
-  property alias notes: dataModel.noteData
-
   AppListView {
-    model: notes
+    model: dataModel.noteData
     section.property: "day"
     section.delegate: SimpleSection {}
     delegate: AppListItem {

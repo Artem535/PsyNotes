@@ -1,15 +1,11 @@
 #include "notestorage/notestorage.h"
+#include "notestorage.h"
 
 NoteStorage::NoteStorage(QObject *parent) : QObject{parent} {
   obx::Options options{create_obx_model()};
   mStore = std::make_unique<obx::Store>(options);
   mNoteBase = std::make_unique<obx::Box<Note>>(*(mStore.get()));
   mNoteDetailsBase = std::make_unique<obx::Box<NoteText>>(*(mStore.get()));
-  Note test_note = {
-      .time = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch()),
-      .title = "test",
-      .visible = true};
-  mNoteBase->put(test_note);
 }
 
 QVector<QVariant> NoteStorage::getNoteList() {
@@ -18,15 +14,15 @@ QVector<QVariant> NoteStorage::getNoteList() {
   // Maybe the correct will use omp.
   for (const auto &note : mNoteBase->getAll()) {
     if (note->visible) {
-      const auto unixTime = QDateTime::fromMSecsSinceEpoch(note->time);
-      QVariantMap shortNote{{"id", QVariant::fromValue(note->id)},
-                            {"title", QString::fromStdString(note->title)},
-                            {"day", unixTime.date().toString("dd.MM.yy")},
-                            {"time", unixTime.time().toString("HH:mm")}};
-      notes.append(shortNote);
+      notes.append(createShortNote(*note));
     }
   }
   return QVector<QVariant>::fromList(notes);
+}
+
+QVariant NoteStorage::getNote(const obx_id &id) {
+  const auto note = mNoteBase->get(id);
+  return note->visible ? createShortNote(*note) : QVariant();
 }
 
 QVector<QVariant>
@@ -41,13 +37,14 @@ NoteStorage::prepareEmotObject(const std::unique_ptr<Note> &note) const {
 QVector<QVariant>
 NoteStorage::prepareTextObject(const std::unique_ptr<NoteText> &text) const {
   return {
-      getObject("body", QString::fromStdString(text->bodyTxt), quest::body),
-      getObject("behavior", QString::fromStdString(text->behaviorTxt),
-                quest::behavior),
-      getObject("situation", QString::fromStdString(text->situationTxt),
-                quest::situation),
-      getObject("thoughts", QString::fromStdString(text->thoughtsTxt),
-                quest::thoughts),
+      getObject(noteDetails::body, QString::fromStdString(text->bodyTxt),
+                quest::body),
+      getObject(noteDetails::behavior,
+                QString::fromStdString(text->behaviorTxt), quest::behavior),
+      getObject(noteDetails::situation,
+                QString::fromStdString(text->situationTxt), quest::situation),
+      getObject(noteDetails::thoughts,
+                QString::fromStdString(text->thoughtsTxt), quest::thoughts),
   };
 }
 
@@ -78,7 +75,8 @@ QVariantMap NoteStorage::getNoteDetails(const obx_id &noteId) const {
 std::unique_ptr<Note> NoteStorage::getEmptyNote() const {
   return std::make_unique<Note>(
       Note{.id = constants::database::defaultNoteID,
-           .noteTextId = constants::database::defaultNoteID});
+           .noteTextId = constants::database::defaultNoteID,
+           .visible = false});
 }
 
 std::unique_ptr<NoteText> NoteStorage::getEmptyNoteDetails() const {
@@ -94,10 +92,8 @@ short NoteStorage::getDefaultNoteId() {
   return constants::database::defaultNoteID;
 }
 
-void NoteStorage::addNewNote(const int &id, const QVariant &note) {
-  const auto type = note.typeName();
+obx_id NoteStorage::addNewNote(const obx_id &id, const QVariant &note) {
   const QVariantMap varMap = note.toMap();
-  qDebug() << varMap;
 
   bool isCorrectKeys = varMap.contains("emotState");
   isCorrectKeys &= varMap.contains("emotTexts");
@@ -106,32 +102,52 @@ void NoteStorage::addNewNote(const int &id, const QVariant &note) {
   if (!isCorrectKeys) {
     qWarning() << "NoteStorage::addNewNote. "
                   "Attempts to save an object that is not a `Note`.";
-    return;
+    return constants::database::defaultNoteID;
   }
 
-  Note resultNote;
-  //  const auto emotState = varMap["emotState"].toInt();
-  //  const QJsonArray emotTexts{varMap["emotTexts"].toJsonArray()};
-  parseEmotCtg(varMap["emotCtg"], resultNote);
+  // Parse and add to the mNoteDetailsBase emotTexts.
+  NoteText resultNoteDetails{.id = constants::database::defaultNoteID};
+  parseObjects<std::string>(varMap["emotTexts"],
+                            getNoteDetailsMap(resultNoteDetails));
+  const obx_id noteDetailsId{mNoteDetailsBase->put(resultNoteDetails)};
+
+  // Parse and add to mNoteBase a note.
+  Note resultNote{
+      .id = id,
+      .time = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch()),
+      .noteTextId = noteDetailsId,
+      .emotState = static_cast<int8_t>(varMap["emotState"].toInt()),
+      .title = "Test Tile",
+      .visible = true};
+  parseObjects<int8_t>(varMap["emotCtg"], getEmotCtgMap(resultNote));
+  return mNoteBase->put(resultNote);
 }
 
-void NoteStorage::parseEmotCtg(const QVariant &data, Note &note) {
-  const auto emotCtg{data.toJsonArray()};
-  QMap<QString, std::reference_wrapper<int8_t>> emotCtgMap{
+QMap<QString, std::reference_wrapper<int8_t>>
+NoteStorage::getEmotCtgMap(Note &note) {
+  return {
       {emt::emotAngry, std::ref(note.angryLevel)},
       {emt::emotSad, std::ref(note.sadLevel)},
       {emt::emotFear, std::ref(note.fearLevel)},
       {emt::emotHappy, std::ref(note.happyLevel)},
       {emt::emotLove, std::ref(note.loveLevel)},
   };
+}
 
-  // NOTE: We need `emotCtg[0].toArray()` because we have nested arrays.
-  for (const QJsonValue &item : emotCtg[0].toArray()) {
-    const QJsonObject emot{item.toObject()};
-    const QString emotName{emot["name"].toString()};
-    const double emotValue{emot["value"].toDouble()};
-    if (auto it = emotCtgMap.find(emotName); it != emotCtgMap.end()) {
-      it->get() = static_cast<int8_t>(emotValue);
-    }
-  }
+QMap<QString, std::reference_wrapper<std::string>>
+NoteStorage::getNoteDetailsMap(NoteText &note) {
+  return {
+      {noteDetails::body, std::ref(note.bodyTxt)},
+      {noteDetails::behavior, std::ref(note.behaviorTxt)},
+      {noteDetails::thoughts, std::ref(note.thoughtsTxt)},
+      {noteDetails::situation, std::ref(note.situationTxt)},
+  };
+}
+
+QVariant NoteStorage::createShortNote(const Note &note) {
+  const auto unixTime = QDateTime::fromMSecsSinceEpoch(note.time);
+  return QVariantMap{{"id", QVariant::fromValue(note.id)},
+                     {"title", QString::fromStdString(note.title)},
+                     {"day", unixTime.date().toString("dd.MM.yy")},
+                     {"time", unixTime.time().toString("HH:mm")}};
 }

@@ -22,7 +22,9 @@ Item {
       id: slider
       value: 0
       from: 0
-      to: 3
+      to: 5
+      stepSize: 1
+      snapMode: "SnapOnRelease"
       Layout.fillWidth: true
     }
   }

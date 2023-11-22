@@ -8,11 +8,7 @@ Item {
   implicitHeight: 200
   implicitWidth: 300
 
-  property alias emotCategories: jsonModel.source
-
-  function syncModeToValue() {
-    jsonModel.syncModelToSource()
-  }
+  property var emotCategories: []
 
   JsonListModel {
     id: jsonModel
@@ -37,7 +33,7 @@ Item {
         emotName: model.name
         emotValue: model.value
         onEmotValueChanged: {
-          jsonModel.setProperty(index, "value", emotValue)
+          emotCategories[index].value = emotValue
         }
       }
     }
