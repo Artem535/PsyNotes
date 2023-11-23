@@ -9,7 +9,7 @@ Item {
   implicitHeight: 30
   implicitWidth: 300
 
-  property var value: emotSlider.value
+  property int value: emotSlider.value
   property alias from: emotSlider.from
   property alias to: emotSlider.to
 

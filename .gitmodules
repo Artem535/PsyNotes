@@ -1,0 +1,6 @@
+[submodule "third-party/objectbox-c"]
+	path = third-party/objectbox-c
+	url = https://github.com/objectbox/objectbox-c.git
+[submodule "third-party/flatbuffers"]
+	path = third-party/flatbuffers
+	url = https://github.com/google/flatbuffers.git

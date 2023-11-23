@@ -122,6 +122,7 @@ inline void
 NoteStorage::parseObjects(const QVariant &data,
                           QMap<QString, std::reference_wrapper<T>> objectsRef) {
   const auto arrayObjects{data.toJsonArray()};
+  qWarning() << "INFORMATION" << arrayObjects;
   // NOTE: We need `arrayObjects[0].toArray()` because we have nested arrays.
   for (const QJsonValue &item : arrayObjects[0].toArray()) {
     const QJsonObject obj{item.toObject()};

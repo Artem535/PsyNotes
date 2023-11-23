@@ -8,14 +8,30 @@ set(CXX_STANDARD 20)
 
 
 # Adding objectbox support
-include(FetchContent)
-FetchContent_Declare(
-    objectbox
-    GIT_REPOSITORY https://github.com/objectbox/objectbox-c.git
-    GIT_TAG        v0.19.0
-)
+if (NOT ANDROID)
+    include(FetchContent)
+    FetchContent_Declare(
+        objectbox
+        GIT_REPOSITORY https://github.com/objectbox/objectbox-c.git
+        GIT_TAG        v0.19.0
+    )
 
-FetchContent_MakeAvailable(objectbox)
+    FetchContent_MakeAvailable(objectbox)
+else ()
+    add_library(objectbox SHARED IMPORTED)
+    set_property(TARGET objectbox PROPERTY
+       IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/arm64-v8a/libobjectbox-jni.so)
+    # Copy files
+    file(GLOB libraries
+        "${CMAKE_SOURCE_DIR}/lib/arm64-v8a/*")
+    file(COPY ${libraries}
+        DESTINATION ${CMAKE_BINARY_DIR}/android-build/libs/arm64-v8a/)
+
+    include_directories(
+        ./third-party/objectbox-c/include/
+        ./third-party/flatbuffers/include
+        )
+endif()
 
 
 find_package(Felgo REQUIRED)
@@ -24,7 +40,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # Project identifier and version
 # More information: https://felgo.com/doc/felgo-publishing/#project-configuration
-set(PRODUCT_IDENTIFIER "com.yourcompany.wizardEVAP.PsyNotes")
+set(PRODUCT_IDENTIFIER "com.PhoenixLab.PsyNotes")
 set(PRODUCT_VERSION_NAME "1.0.0")
 set(PRODUCT_VERSION_CODE 1)
 
@@ -35,7 +51,7 @@ set(PRODUCT_STAGE "test")
 # main.qml file (App::licenseKey for your app or GameWindow::licenseKey for your game)
 # Only used for local builds and Felgo Cloud Builds (https://felgo.com/cloud-builds)
 # Not used if using Felgo Live
-set(PRODUCT_LICENSE_KEY "")
+set(PRODUCT_LICENSE_KEY "B0030341A3D8B1312E118EAFE6D59A69A0ED364E692587C2C00C4AE5B208690A7B01C929553592082C5F236F800C7F5946A95F5D825BBA0A67A20AD274E581D9DE27010D561D780DB033AAEC8B0B5347AE4D60230F9CF83D0AD5AAB94F2B09A6DC1228F6295F48FB656D7F7FD5EFDF1B3A1A5AB6D3F26E46008D463354B626D0CE0F4B844B2D9454729D388753B4328D2818C902F82EC3841526969C0ADA77B3733A54BC181EAB77244B9B2907EDFDB47833704A29A5772F6B0527B078526308D9CE0E881E13DB22864E37341EC36EDF01AB5AD0519857D0C0423EF2E2DC985BD53AE096E4BF8F51774C5EE07D75D5796EC6939905D79A431806A6E51541D460570B69A9FC69078C6769A4B70570C5D49BEAC856DD77B5E2FCF70AC0D77A0E077F31B1545482A2A9F41147DBC696543F")
 
 set(FELGO_PLUGINS
 )
@@ -67,7 +83,7 @@ felgo_configure_executable(appPsyNotes)
 
 # Deploy resources to build folder/package directly
 # comment for publishing
-deploy_resources("${QmlFiles};${AssetsFiles}")
+#deploy_resources("${QmlFiles};${AssetsFiles}")
 
 # Add QML files and resources to QML module to included them via QRC automatically:
 qt_add_qml_module(appPsyNotes
