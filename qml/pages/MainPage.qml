@@ -89,6 +89,11 @@ AppPage {
           onClicked: mainPage.navigationStack.push(testsPage)
         }
       }
+
+      AppSlider {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+      }
     }
   }
 }
