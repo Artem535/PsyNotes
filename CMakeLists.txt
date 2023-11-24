@@ -19,7 +19,7 @@ if (NOT ANDROID)
 
     FetchContent_MakeAvailable(objectbox)
 else ()
-    execute_process(git lfs pull)
+    execute_process(COMMAND git lfs pull WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
     add_library(objectbox SHARED IMPORTED)
     set_property(TARGET objectbox PROPERTY
        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/arm64-v8a/libobjectbox-jni.so)
