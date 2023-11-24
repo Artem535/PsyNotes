@@ -6,9 +6,10 @@ import "diary"
 import "chat"
 import "results"
 import "tests"
+import "../logic"
 
 AppPage {
-  id:root
+  id: root
 
   TabControl {
     tabPosition: TabBar.Footer
@@ -24,6 +25,9 @@ AppPage {
       id: appDiaryPage
       title: qsTr("DIARY")
       DiaryPage {}
+      onSelected: {
+        logic.fetchNoteData()
+      }
     }
 
     NavigationItem {
@@ -37,5 +41,9 @@ AppPage {
       title: qsTr("TEST")
       TestsPage {}
     }
+  }
+
+  Logic {
+    id: logic
   }
 }

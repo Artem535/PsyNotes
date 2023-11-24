@@ -33,18 +33,12 @@ AppPage {
     }
   }
 
-  onPushed: {
-    logic.fetchNoteData()
-  }
-
   NoteModel {
     id: dataModel
     dispatcher: logic
   }
 
-  Logic {
-    id: logic
-  }
+
 
   Component {
     id: notePage

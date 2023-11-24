@@ -9,7 +9,7 @@ Item {
   implicitHeight: 30
   implicitWidth: 300
 
-  property int value: emotSlider.value
+  property alias value: emotSlider.value
   property alias from: emotSlider.from
   property alias to: emotSlider.to
 
@@ -27,8 +27,6 @@ Item {
       id: emotSlider
       from: -3
       to: 3
-      stepSize: 1
-      snapMode: Slider.SnapOnRelease
       Layout.alignment: Qt.AlignCenter
       Layout.preferredWidth: 0.8 * parent.width
     }

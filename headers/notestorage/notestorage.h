@@ -121,10 +121,14 @@ template <typename T>
 inline void
 NoteStorage::parseObjects(const QVariant &data,
                           QMap<QString, std::reference_wrapper<T>> objectsRef) {
-  const auto arrayObjects{data.toJsonArray()};
-  qWarning() << "INFORMATION" << arrayObjects;
-  // NOTE: We need `arrayObjects[0].toArray()` because we have nested arrays.
-  for (const QJsonValue &item : arrayObjects[0].toArray()) {
+  QJsonArray arrayObjects{data.toJsonArray()};
+  // Function `toJsonArray` can return different results. It can be array or
+  // nested array.
+  if (arrayObjects[0].isArray()) {
+    arrayObjects = arrayObjects[0].toArray();
+  }
+
+  for (const QJsonValue &item : arrayObjects) {
     const QJsonObject obj{item.toObject()};
     const QString objName{obj["name"].toString()};
     if (auto it = objectsRef.find(objName); it != objectsRef.end()) {

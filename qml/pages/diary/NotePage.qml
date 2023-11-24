@@ -13,7 +13,6 @@ FlickablePage {
   onNoteIdChanged: {
     logic.getNoteDetails(noteId)
     noteDetails = dataModel.noteDetails
-    console.log("Additional data getted!")
   }
 
   flickable.contentHeight: layout.height
