@@ -1,0 +1,1 @@
+INSERT OR IGNORE INTO NoteTextDetails(id) VALUES (0);

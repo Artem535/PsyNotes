@@ -7,35 +7,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CXX_STANDARD 20)
 
-
-# Adding objectbox support
-if (NOT ANDROID)
-    include(FetchContent)
-    FetchContent_Declare(
-        objectbox
-        GIT_REPOSITORY https://github.com/objectbox/objectbox-c.git
-        GIT_TAG        v0.19.0
-    )
-
-    FetchContent_MakeAvailable(objectbox)
-else ()
-    execute_process(COMMAND git lfs pull WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-    add_library(objectbox SHARED IMPORTED)
-    set_property(TARGET objectbox PROPERTY
-       IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/arm64-v8a/libobjectbox-jni.so)
-    # Copy files
-    file(GLOB libraries
-        "${CMAKE_SOURCE_DIR}/lib/arm64-v8a/*")
-    file(COPY ${libraries}
-        DESTINATION ${CMAKE_BINARY_DIR}/android-build/libs/arm64-v8a/)
-
-    include_directories(
-        ./third-party/objectbox-c/include/
-        ./third-party/flatbuffers/include
-        )
-endif()
-
-
 find_package(Felgo REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
@@ -59,6 +30,12 @@ set(PRODUCT_LICENSE_KEY ${FELGO_KEY})
 
 set(FELGO_PLUGINS
 )
+
+# Conver sql sripts
+execute_process(COMMAND 
+                python ${CMAKE_SOURCE_DIR}/database/convert_scripts.py 
+                ${CMAKE_SOURCE_DIR}/database/scripts 
+                ${CMAKE_SOURCE_DIR}/headers/sqlscripts.hpp)
 
 # Find all QML/JS files for the QML compiler:
 file(GLOB_RECURSE QmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} qml/*.qml qml/*.js)
@@ -112,7 +89,6 @@ target_compile_definitions(appPsyNotes
 
 target_link_libraries(appPsyNotes
     PRIVATE
-    objectbox
     Felgo)
 
 # uncomment this line to add the Live Client Module and use live reloading with your custom C++ code

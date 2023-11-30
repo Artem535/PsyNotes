@@ -1,40 +1,46 @@
 #pragma once
 #include "constants.hpp"
+#include "sqlscripts.hpp"
 #include <QDateTime>
 #include <QObject>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlQueryModel>
+#include <QString>
 #include <QVariantList>
 #include <QVariantMap>
 #include <QVector>
 #include <QtQuick>
 #include <cstdint>
-#include <database/database.obx.hpp>
-#include <database/objectbox-model.h>
 #include <functional>
 #include <memory>
-#include <objectbox.hpp>
 #include <utility>
 
 namespace emt = constants::emotions;
 namespace quest = constants::questionsLabels;
 namespace noteDetails = constants::noteDetails;
+namespace sql = constants::sql;
 
 class NoteStorage : public QObject {
   Q_OBJECT
   QML_ELEMENT
 public:
   explicit NoteStorage(QObject *parent = nullptr);
+  ~NoteStorage();
   Q_INVOKABLE QVector<QVariant> getNoteList();
-  Q_INVOKABLE QVariant getNote(const obx_id &id);
-  Q_INVOKABLE QVariantMap getNoteDetails(const obx_id &noteId) const;
-  Q_INVOKABLE QVariantMap getDefaultNote() const;
+  Q_INVOKABLE QVariantMap getNoteDetails(const int &noteId);
+  Q_INVOKABLE QVariantMap getDefaultNote();
   Q_INVOKABLE short getDefaultNoteId();
-  Q_INVOKABLE obx_id addNewNote(const obx_id &id, const QVariant &note);
+  Q_INVOKABLE int addNewNote(const int &id, const QVariant &note);
 
 private:
-  std::unique_ptr<obx::Box<Note>> mNoteBase;
-  std::unique_ptr<obx::Box<NoteText>> mNoteDetailsBase;
-  std::unique_ptr<obx::Store> mStore;
-  obx_id mIdDefaultNote;
+  int mLastTextId = constants::database::defaultNoteID;
+  int mLastEmotId = constants::database::defaultNoteID;
+  int mLastNoteId = -1;
+  QSqlDatabase mSqlNoteBase;
+
+  int mIdDefaultNote;
 
   /**
    * @brief
@@ -42,7 +48,7 @@ private:
    * @param note
    * @return QVector<QVariant>
    */
-  QVector<QVariant> prepareEmotObject(const std::unique_ptr<Note> &note) const;
+  QVector<QVariant> prepareEmotObject(const QSqlQuery &query) const;
 
   /**
    * @brief
@@ -50,8 +56,7 @@ private:
    * @param note
    * @return QVector<QVariant>
    */
-  QVector<QVariant>
-  prepareTextObject(const std::unique_ptr<NoteText> &note) const;
+  QVector<QVariant> prepareTextObject(const QSqlQuery &query) const;
 
   /**
    * @brief Get the Object object
@@ -74,28 +79,14 @@ private:
                         const QVariant &addtValue) const;
 
   /**
-   * @brief Get the Empty Note object
-   *
-   * @return std::unique_ptr<Note>
-   */
-  std::unique_ptr<Note> getEmptyNote() const;
-
-  /**
-   * @brief Get the Empty Note Details object
-   *
-   * @return std::unique_ptr<NoteText>
-   */
-  std::unique_ptr<NoteText> getEmptyNoteDetails() const;
-
-  /**
    * @brief
    *
    * @param data
    * @param note
    */
   template <typename T>
-  void parseObjects(const QVariant &data,
-                    QMap<QString, std::reference_wrapper<T>> objectsRef);
+  QVariantMap parseObjects(const QVariant &data,
+                           const QMap<QString, QString> params);
 
   /**
    * @brief Get the Emot Ctg Map object
@@ -103,7 +94,7 @@ private:
    * @param note
    * @return QMap<QString, std::reference_wrapper<int8_t>>
    */
-  QMap<QString, std::reference_wrapper<int8_t>> getEmotCtgMap(Note &note);
+  QMap<QString, QString> getEmotCtgParametrs() const;
 
   /**
    * @brief Get the Note Details Map object
@@ -111,31 +102,49 @@ private:
    * @param note
    * @return QMap<QString, std::reference_wrapper<std::string>>
    */
-  QMap<QString, std::reference_wrapper<std::string>>
-  getNoteDetailsMap(NoteText &note);
+  QMap<QString, QString> getNoteDetailsParametrs() const;
 
-  QVariant createShortNote(const Note &note);
+  bool execQuery(const QString &script);
+
+  bool execQuery(const QStringList &query);
+
+  void insertQueryTempl(const QString &script, const QVariantMap &bindings,
+                        int &lastId);
+
+  bool execSelectQuery(const QString &script,
+                       std::function<void(const QSqlQuery &query)> process);
+
+  bool execSelectQuery(QSqlQuery &query,
+                       std::function<void(const QSqlQuery &query)> process);
+
+  bool execSelectQueryTempl(const QString &script,
+                            std::function<void(const QSqlQuery &query)> process,
+                            const QVariantMap &bindings);
 };
 
 template <typename T>
-inline void
-NoteStorage::parseObjects(const QVariant &data,
-                          QMap<QString, std::reference_wrapper<T>> objectsRef) {
+QVariantMap NoteStorage::parseObjects(const QVariant &data,
+                                      const QMap<QString, QString> params) {
   QJsonArray arrayObjects{data.toJsonArray()};
   // Function `toJsonArray` can return different results. It can be array or
   // nested array.
   if (arrayObjects[0].isArray()) {
     arrayObjects = arrayObjects[0].toArray();
   }
-
+  QVariantMap bindings;
   for (const QJsonValue &item : arrayObjects) {
     const QJsonObject obj{item.toObject()};
-    const QString objName{obj["name"].toString()};
-    if (auto it = objectsRef.find(objName); it != objectsRef.end()) {
-      if constexpr (std::is_same<T, int8_t>())
-        it->get() = static_cast<T>(obj["value"].toInt());
-      else
-        it->get() = obj["value"].toString().toStdString();
+    const QString objName{obj.value("name").toString()};
+    if (const auto it = params.find(objName); it != params.end()) {
+      if constexpr (std::is_same<T, QString>()) {
+        bindings.insert({{it.value(), obj.value("value").toString()}});
+      } else {
+        bindings.insert({{it.value(), obj.value("value").toInt()}});
+      }
+    } else {
+      qDebug() << "Key not found:" << objName << obj;
     }
   }
+
+  return bindings;
 }

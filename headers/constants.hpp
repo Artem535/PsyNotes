@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <database.obx.hpp>
 #include <map>
 #include <string_view>
 
@@ -30,6 +29,7 @@ constexpr char situation[] = "Situations?";
 
 namespace database {
 constexpr short defaultNoteID = 0;
+constexpr char databaseName[] = "notestorage.db";
 } // namespace database
 
 } // namespace constants

@@ -1,9 +1,7 @@
-#define OBX_CPP_FILE
 #include <FelgoApplication>
 #include <QApplication>
 #include <QDir>
 #include <QQmlApplicationEngine>
-#include <objectbox.hpp>
 
 // uncomment this line to add the Live Client Module and use live reloading with
 // your custom C++ code

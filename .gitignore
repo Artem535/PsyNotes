@@ -8,6 +8,9 @@ build
 
 CMakeLists.txt.user*
 
+database/.dbeaver 
+database/.project
+
 # Compiled Object files
 *.slo
 *.lo

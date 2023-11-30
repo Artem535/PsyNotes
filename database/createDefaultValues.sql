@@ -1,3 +1,0 @@
-INSERT INTO Notes VALUES (0, 0, "DEFAULT EMPTY NOTE", 0, 0);
-INSERT INTO Emotions(id) VALUES (0);
-INSERT INTO NoteTextDetails(id) VALUES (0);
