@@ -115,26 +115,25 @@ private:
                         int &lastId);
 
   // template<class QueryHandler>
-  bool execSelectQuery(QSqlQuery &query,
-                       const auto &process);
+  bool execSelectQuery(QSqlQuery &query, const auto &process);
 
   // template<class QueryHandler>
-  bool execSelectQuery(const QString &script,
-                       const auto &process);
+  bool execSelectQuery(const QString &script, const auto &process);
 
-  bool execSelectQueryTempl(
-      const QString &script,
-      const auto &process,
-      const QVariantMap &bindings);
+  bool execSelectQueryTempl(const QString &script, const auto &process,
+                            const QVariantMap &bindings);
 
-  void logDebug(const QString &message,
-                const std::source_location& location = std::source_location::current()) const noexcept;
-
+  inline void logMessage(
+      const QString &message, QtMsgType type = QtDebugMsg,
+      const std::source_location &location = srcLoc::current()) const noexcept {
+    QDebug(type) << QString(location.function_name()) + ":" + message;
+  }
 };
 
 template <typename T>
-QVariantMap NoteStorage::parseObjects(const QVariant &data,
-                                      const QMap<QString, QString> params) const noexcept {
+QVariantMap
+NoteStorage::parseObjects(const QVariant &data,
+                          const QMap<QString, QString> params) const noexcept {
   QJsonArray arrayObjects{data.toJsonArray()};
   // Function `toJsonArray` can return different results. It can be array or
   // nested array.
@@ -152,7 +151,7 @@ QVariantMap NoteStorage::parseObjects(const QVariant &data,
         bindings.insert({{it.value(), obj.value("value").toInt()}});
       }
     } else {
-      logDebug("Key not found:" + objName + QJsonDocument(obj).toJson());
+      logMessage("Key not found:" + objName + QJsonDocument(obj).toJson());
     }
   }
 

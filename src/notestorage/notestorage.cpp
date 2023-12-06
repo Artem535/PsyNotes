@@ -90,7 +90,7 @@ void NoteStorage::insertQueryTempl(const QString &script,
 
 bool NoteStorage::execSelectQuery(QSqlQuery &query, const auto &process) {
   if (!query.exec()) {
-    logDebug("Error executing query:" + query.lastError().text());
+    logMessage("Error executing query:" + query.lastError().text());
     return false;
   }
 
@@ -119,13 +119,6 @@ bool NoteStorage::execSelectQueryTempl(const QString &script,
   std::for_each(bindings.constKeyValueBegin(), bindings.constKeyValueEnd(),
                 [&](const auto &it) { query.bindValue(it.first, it.second); });
   return execSelectQuery(query, process);
-}
-
-void NoteStorage::logDebug(
-    const QString &message,
-    const std::source_location &location) const noexcept {
-
-  qDebug() << QString(location.function_name()) + ":" + message;
 }
 
 QVariantMap NoteStorage::getNoteDetails(const int &noteId) {
