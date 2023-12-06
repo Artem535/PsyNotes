@@ -20,12 +20,13 @@ QVector<QVariant> NoteStorage::getNoteList() {
   QVariantList notes;
   // NOTE: If in database will be a lot data, then it will be slow.
   // Maybe the correct will use omp.
-  execSelectQuery(constants::sql::getShortNotes, [&](const QSqlQuery &query) {
-    notes.push_back(QVariantMap{{"id", query.value("id")},
-                                {"title", query.value("title")},
-                                {"day", query.value("dateValue")},
-                                {"time", query.value("timeValue")}});
-  });
+  execSelectQuery(
+      constants::sql::getShortNotes, [&notes](const QSqlQuery &query) {
+        notes.push_back(QVariantMap{{"id", query.value("id")},
+                                    {"title", query.value("title")},
+                                    {"day", query.value("dateValue")},
+                                    {"time", query.value("timeValue")}});
+      });
 
   return QVector<QVariant>::fromList(notes);
 }
@@ -87,10 +88,9 @@ void NoteStorage::insertQueryTempl(const QString &script,
     lastId = query.lastInsertId().toInt();
 }
 
-bool NoteStorage::execSelectQuery(
-    QSqlQuery &query, std::function<void(const QSqlQuery &)> process) {
+bool NoteStorage::execSelectQuery(QSqlQuery &query, const auto &process) {
   if (!query.exec()) {
-    qDebug() << "Error executing query:" << query.lastError().text();
+    logDebug("Error executing query:" + query.lastError().text());
     return false;
   }
 
@@ -106,15 +106,14 @@ bool NoteStorage::execSelectQuery(
   return true;
 }
 
-bool NoteStorage::execSelectQuery(
-    const QString &script, std::function<void(const QSqlQuery &)> process) {
+bool NoteStorage::execSelectQuery(const QString &script, const auto &process) {
   QSqlQuery query(script);
   return execSelectQuery(query, process);
 }
 
-bool NoteStorage::execSelectQueryTempl(
-    const QString &script, std::function<void(const QSqlQuery &)> process,
-    const QVariantMap &bindings) {
+bool NoteStorage::execSelectQueryTempl(const QString &script,
+                                       const auto &process,
+                                       const QVariantMap &bindings) {
   QSqlQuery query;
   query.prepare(script);
   std::for_each(bindings.constKeyValueBegin(), bindings.constKeyValueEnd(),
@@ -122,12 +121,19 @@ bool NoteStorage::execSelectQueryTempl(
   return execSelectQuery(query, process);
 }
 
+void NoteStorage::logDebug(
+    const QString &message,
+    const std::source_location &location) const noexcept {
+
+  qDebug() << QString(location.function_name()) + ":" + message;
+}
+
 QVariantMap NoteStorage::getNoteDetails(const int &noteId) {
   QVariantMap res;
   QVariantMap bindings{{":id", QVariant::fromValue(noteId)}};
   execSelectQueryTempl(
       constants::sql::getFullNoteOnId,
-      [&](const QSqlQuery &query) {
+      [&res, this](const QSqlQuery &query) {
         res.insert({{"emotState", query.value("emotState")},
                     {"emotTexts", prepareTextObject(query)},
                     {"emotCtg", prepareEmotObject(query)}});
@@ -140,7 +146,7 @@ QVariantMap NoteStorage::getDefaultNote() {
   return getNoteDetails(constants::database::defaultNoteID);
 }
 
-short NoteStorage::getDefaultNoteId() {
+short NoteStorage::getDefaultNoteId() const {
   return constants::database::defaultNoteID;
 }
 
@@ -160,7 +166,7 @@ int NoteStorage::addNewNote(const int &id, const QVariant &note) {
   // Parse and add to the mNoteDetailsBase emotTexts.
   {
     QVariantMap emotBind;
-    emotBind = parseObjects<int>(varMap["emotCtg"], getEmotCtgParametrs());
+    emotBind = parseObjects<int>(varMap["emotCtg"], getEmotCtgParameters());
     emotBind.insert({{":emotState", varMap["emotState"]}});
     insertQueryTempl(constants::sql::insertNewEmotTemplate, emotBind,
                      mLastEmotId);
@@ -169,7 +175,7 @@ int NoteStorage::addNewNote(const int &id, const QVariant &note) {
   {
     QVariantMap textBind;
     textBind =
-        parseObjects<QString>(varMap["emotTexts"], getNoteDetailsParametrs());
+        parseObjects<QString>(varMap["emotTexts"], getNoteDetailsParameters());
     insertQueryTempl(constants::sql::insertNewTextTemplate, textBind,
                      mLastTextId);
   }
@@ -186,7 +192,7 @@ int NoteStorage::addNewNote(const int &id, const QVariant &note) {
   return mLastNoteId;
 }
 
-QMap<QString, QString> NoteStorage::getEmotCtgParametrs() const {
+QMap<QString, QString> NoteStorage::getEmotCtgParameters() const {
   return {
       {emt::emotAngry, ":angryLevel"}, {emt::emotSad, ":sadLevel"},
       {emt::emotFear, ":fearLevel"},   {emt::emotHappy, ":happyLevel"},
@@ -194,7 +200,7 @@ QMap<QString, QString> NoteStorage::getEmotCtgParametrs() const {
   };
 }
 
-QMap<QString, QString> NoteStorage::getNoteDetailsParametrs() const {
+QMap<QString, QString> NoteStorage::getNoteDetailsParameters() const {
   return {
       {noteDetails::body, ":body"},
       {noteDetails::behavior, ":behavior"},

@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <source_location>
 #include <utility>
 
 namespace emt = constants::emotions;
@@ -22,16 +23,18 @@ namespace quest = constants::questionsLabels;
 namespace noteDetails = constants::noteDetails;
 namespace sql = constants::sql;
 
+using srcLoc = std::source_location;
+
 class NoteStorage : public QObject {
   Q_OBJECT
   QML_ELEMENT
 public:
   explicit NoteStorage(QObject *parent = nullptr);
-  ~NoteStorage();
+  ~NoteStorage() override;
   Q_INVOKABLE QVector<QVariant> getNoteList();
   Q_INVOKABLE QVariantMap getNoteDetails(const int &noteId);
   Q_INVOKABLE QVariantMap getDefaultNote();
-  Q_INVOKABLE short getDefaultNoteId();
+  Q_INVOKABLE short getDefaultNoteId() const;
   Q_INVOKABLE int addNewNote(const int &id, const QVariant &note);
 
 private:
@@ -86,7 +89,7 @@ private:
    */
   template <typename T>
   QVariantMap parseObjects(const QVariant &data,
-                           const QMap<QString, QString> params);
+                           const QMap<QString, QString> params) const noexcept;
 
   /**
    * @brief Get the Emot Ctg Map object
@@ -94,7 +97,7 @@ private:
    * @param note
    * @return QMap<QString, std::reference_wrapper<int8_t>>
    */
-  QMap<QString, QString> getEmotCtgParametrs() const;
+  QMap<QString, QString> getEmotCtgParameters() const;
 
   /**
    * @brief Get the Note Details Map object
@@ -102,7 +105,7 @@ private:
    * @param note
    * @return QMap<QString, std::reference_wrapper<std::string>>
    */
-  QMap<QString, QString> getNoteDetailsParametrs() const;
+  QMap<QString, QString> getNoteDetailsParameters() const;
 
   bool execQuery(const QString &script);
 
@@ -111,20 +114,27 @@ private:
   void insertQueryTempl(const QString &script, const QVariantMap &bindings,
                         int &lastId);
 
-  bool execSelectQuery(const QString &script,
-                       std::function<void(const QSqlQuery &query)> process);
-
+  // template<class QueryHandler>
   bool execSelectQuery(QSqlQuery &query,
-                       std::function<void(const QSqlQuery &query)> process);
+                       const auto &process);
 
-  bool execSelectQueryTempl(const QString &script,
-                            std::function<void(const QSqlQuery &query)> process,
-                            const QVariantMap &bindings);
+  // template<class QueryHandler>
+  bool execSelectQuery(const QString &script,
+                       const auto &process);
+
+  bool execSelectQueryTempl(
+      const QString &script,
+      const auto &process,
+      const QVariantMap &bindings);
+
+  void logDebug(const QString &message,
+                const std::source_location& location = std::source_location::current()) const noexcept;
+
 };
 
 template <typename T>
 QVariantMap NoteStorage::parseObjects(const QVariant &data,
-                                      const QMap<QString, QString> params) {
+                                      const QMap<QString, QString> params) const noexcept {
   QJsonArray arrayObjects{data.toJsonArray()};
   // Function `toJsonArray` can return different results. It can be array or
   // nested array.
@@ -142,7 +152,7 @@ QVariantMap NoteStorage::parseObjects(const QVariant &data,
         bindings.insert({{it.value(), obj.value("value").toInt()}});
       }
     } else {
-      qDebug() << "Key not found:" << objName << obj;
+      logDebug("Key not found:" + objName + QJsonDocument(obj).toJson());
     }
   }
 
