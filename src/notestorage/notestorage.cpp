@@ -3,7 +3,7 @@
 
 NoteStorage::NoteStorage(QObject *parent) : QObject{parent} {
   mSqlNoteBase = QSqlDatabase::addDatabase("QSQLITE");
-  mSqlNoteBase.setDatabaseName(constants::database::databaseName);
+  mSqlNoteBase.setDatabaseName(constants::database::kDatabaseName);
 
   const QStringList scripts{
       sql::createNoteTable,        sql::createEmotTable,
@@ -32,22 +32,23 @@ QVector<QVariant> NoteStorage::getNoteList() {
 }
 
 QVector<QVariant> NoteStorage::prepareEmotObject(const QSqlQuery &query) const {
-  return {getObject(emt::emotAngry, query.value("angryLevel")),
-          getObject(emt::emotSad, query.value("sadLevel")),
-          getObject(emt::emotFear, query.value("fearLevel")),
-          getObject(emt::emotHappy, query.value("happyLevel")),
-          getObject(emt::emotLove, query.value("loveLevel"))};
+  return {getObject(emotions::kEmotAngry, query.value("angryLevel")),
+          getObject(emotions::kEmotSad, query.value("sadLevel")),
+          getObject(emotions::kEmotFear, query.value("fearLevel")),
+          getObject(emotions::kEmotHappy, query.value("happyLevel")),
+          getObject(emotions::kEmotLove, query.value("loveLevel"))};
 }
 
-QVector<QVariant> NoteStorage::prepareTextObject(const QSqlQuery &query) const {
+QVector<QVariant>
+NoteStorage::prepareNoteDetailsObject(const QSqlQuery &query) const {
   return {
-      getObject(noteDetails::body, query.value("bodyTxt"), quest::body),
-      getObject(noteDetails::behavior, query.value("behaviorTxt"),
-                quest::behavior),
-      getObject(noteDetails::situation, query.value("situationTxt"),
-                quest::situation),
-      getObject(noteDetails::thoughts, query.value("thoughtsTxt"),
-                quest::thoughts),
+      getObject(noteDetails::kBody, query.value("bodyTxt"), questions::kBody),
+      getObject(noteDetails::kBehavior, query.value("behaviorTxt"),
+                questions::kBehavior),
+      getObject(noteDetails::kSituation, query.value("situationTxt"),
+                questions::kSituation),
+      getObject(noteDetails::kThoughts, query.value("thoughtsTxt"),
+                questions::kThoughts),
   };
 }
 
@@ -55,8 +56,9 @@ QVariantMap NoteStorage::getObject(const QString &key,
                                    const QVariant &value) const {
   return {{"name", key}, {"value", value}};
 }
+
 QVariantMap NoteStorage::getObject(const QString &key, const QVariant &value,
-                                   const QVariant &addtValue) const {
+                                   const QVariant &addtValue) const noexcept {
   return {{"name", key}, {"value", value}, {"secondValue", addtValue}};
 }
 
@@ -64,6 +66,7 @@ bool NoteStorage::execQuery(const QString &script) {
   QSqlQuery query(script);
   return query.exec();
 }
+
 
 bool NoteStorage::execQuery(const QStringList &scripts) {
   QSqlQuery query;
@@ -74,6 +77,7 @@ bool NoteStorage::execQuery(const QStringList &scripts) {
 
   return allFine;
 }
+
 
 void NoteStorage::insertQueryTempl(const QString &script,
                                    const QVariantMap &bindings, int &lastId) {
@@ -90,7 +94,7 @@ void NoteStorage::insertQueryTempl(const QString &script,
 
 bool NoteStorage::execSelectQuery(QSqlQuery &query, const auto &process) {
   if (!query.exec()) {
-    logDebug("Error executing query:" + query.lastError().text());
+    logMessage("Error executing query:" + query.lastError().text());
     return false;
   }
 
@@ -98,7 +102,9 @@ bool NoteStorage::execSelectQuery(QSqlQuery &query, const auto &process) {
     try {
       process(query);
     } catch (const std::exception &e) {
-      qDebug() << "Exception during processing query result:" << e.what();
+      logMessage("Exception during processing query result: " +
+                     QString(e.what()),
+                 QtWarningMsg);
       return false;
     }
   }
@@ -121,11 +127,43 @@ bool NoteStorage::execSelectQueryTempl(const QString &script,
   return execSelectQuery(query, process);
 }
 
-void NoteStorage::logDebug(
-    const QString &message,
-    const std::source_location &location) const noexcept {
 
-  qDebug() << QString(location.function_name()) + ":" + message;
+void NoteStorage::parseAndInsertObject(NoteStorage::ObjectCtgTypes type,
+                                     const QVariant &object,
+                                     const QMap<QString, QString> &params,
+                                     const QVariant &additionalObject) {
+  switch (type) {
+  case ObjectCtgTypes::emot: {
+    QVariantMap emotBind;
+    emotBind = parseObjects<int>(object, params);
+    emotBind.insert({{":emotState", additionalObject.toDouble()}});
+    insertQueryTempl(constants::sql::insertNewEmotTemplate, emotBind,
+                     mLastEmotId);
+    break;
+  }
+  case ObjectCtgTypes::text: {
+    QVariantMap textBind;
+    textBind = parseObjects<QString>(object, params);
+    insertQueryTempl(constants::sql::insertNewTextTemplate, textBind,
+                     mLastTextId);
+    break;
+  }
+  case ObjectCtgTypes::note: {
+    QVariantMap noteBind{{":emotId", QVariant::fromValue(mLastEmotId)},
+                         {":noteTextId", QVariant::fromValue(mLastTextId)}};
+    if (const int noteId{object.toInt()};
+        noteId != constants::database::kDefaultNoteID) {
+      noteBind.insert({{":id", noteId}});
+      insertQueryTempl(constants::sql::replaceNote, noteBind, mLastNoteId);
+    } else {
+      insertQueryTempl(constants::sql::insertNewNoteTemplate, noteBind,
+                       mLastNoteId);
+    }
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 QVariantMap NoteStorage::getNoteDetails(const int &noteId) {
@@ -135,7 +173,7 @@ QVariantMap NoteStorage::getNoteDetails(const int &noteId) {
       constants::sql::getFullNoteOnId,
       [&res, this](const QSqlQuery &query) {
         res.insert({{"emotState", query.value("emotState")},
-                    {"emotTexts", prepareTextObject(query)},
+                    {"emotTexts", prepareNoteDetailsObject(query)},
                     {"emotCtg", prepareEmotObject(query)}});
       },
       bindings);
@@ -143,11 +181,11 @@ QVariantMap NoteStorage::getNoteDetails(const int &noteId) {
 }
 
 QVariantMap NoteStorage::getDefaultNote() {
-  return getNoteDetails(constants::database::defaultNoteID);
+  return getNoteDetails(constants::database::kDefaultNoteID);
 }
 
 short NoteStorage::getDefaultNoteId() const {
-  return constants::database::defaultNoteID;
+  return constants::database::kDefaultNoteID;
 }
 
 int NoteStorage::addNewNote(const int &id, const QVariant &note) {
@@ -160,51 +198,34 @@ int NoteStorage::addNewNote(const int &id, const QVariant &note) {
   if (!isCorrectKeys) {
     qWarning() << "NoteStorage::addNewNote. "
                   "Attempts to save an object that is not a `Note`.";
-    return constants::database::defaultNoteID;
+    return constants::database::kDefaultNoteID;
   }
 
   // Parse and add to the mNoteDetailsBase emotTexts.
-  {
-    QVariantMap emotBind;
-    emotBind = parseObjects<int>(varMap["emotCtg"], getEmotCtgParameters());
-    emotBind.insert({{":emotState", varMap["emotState"]}});
-    insertQueryTempl(constants::sql::insertNewEmotTemplate, emotBind,
-                     mLastEmotId);
-  }
+  parseAndInsertObject(NoteStorage::ObjectCtgTypes::emot, varMap["emotCtg"],
+                     getEmotCtgParameters(), varMap["emotState"]);
+  parseAndInsertObject(NoteStorage::ObjectCtgTypes::text, varMap["emotTexts"],
+                     getNoteDetailsParameters());
+  parseAndInsertObject(NoteStorage::ObjectCtgTypes::note, QVariant(id));
 
-  {
-    QVariantMap textBind;
-    textBind =
-        parseObjects<QString>(varMap["emotTexts"], getNoteDetailsParameters());
-    insertQueryTempl(constants::sql::insertNewTextTemplate, textBind,
-                     mLastTextId);
-  }
-
-  QVariantMap noteBind{{":emotId", QVariant::fromValue(mLastEmotId)},
-                       {":noteTextId", QVariant::fromValue(mLastTextId)}};
-  if (mLastNoteId == id) {
-    noteBind.insert({{":id", mLastNoteId}});
-    insertQueryTempl(constants::sql::replaceNote, noteBind, mLastNoteId);
-  } else {
-    insertQueryTempl(constants::sql::insertNewNoteTemplate, noteBind,
-                     mLastNoteId);
-  }
   return mLastNoteId;
 }
 
 QMap<QString, QString> NoteStorage::getEmotCtgParameters() const {
   return {
-      {emt::emotAngry, ":angryLevel"}, {emt::emotSad, ":sadLevel"},
-      {emt::emotFear, ":fearLevel"},   {emt::emotHappy, ":happyLevel"},
-      {emt::emotLove, ":loveLevel"},
+      {emotions::kEmotAngry, ":angryLevel"},
+      {emotions::kEmotSad, ":sadLevel"},
+      {emotions::kEmotFear, ":fearLevel"},
+      {emotions::kEmotHappy, ":happyLevel"},
+      {emotions::kEmotLove, ":loveLevel"},
   };
 }
 
 QMap<QString, QString> NoteStorage::getNoteDetailsParameters() const {
   return {
-      {noteDetails::body, ":body"},
-      {noteDetails::behavior, ":behavior"},
-      {noteDetails::thoughts, ":thoughts"},
-      {noteDetails::situation, ":situation"},
+      {noteDetails::kBody, ":body"},
+      {noteDetails::kBehavior, ":behavior"},
+      {noteDetails::kThoughts, ":thoughts"},
+      {noteDetails::kSituation, ":situation"},
   };
 }

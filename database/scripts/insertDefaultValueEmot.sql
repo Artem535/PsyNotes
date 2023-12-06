@@ -1,1 +1,1 @@
-INSERT OR IGNORE INTO Emotions(id) VALUES (-1);
+INSERT OR IGNORE INTO Emotions(id, locked) VALUES (0, 1);

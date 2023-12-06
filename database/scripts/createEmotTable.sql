@@ -6,11 +6,13 @@ CREATE TABLE IF NOT EXISTS Emotions (
     loveLevel INTEGER DEFAULT 0,
     fearLevel INTEGER DEFAULT 0,
     happyLevel INTEGER DEFAULT 0,
+    locked INTEGER DEFAULT 0,
     
     UNIQUE (emotState,
             angryLevel,
             sadLevel,
             loveLevel,
             fearLevel,
-            happyLevel)
+            happyLevel,
+            locked)
 );

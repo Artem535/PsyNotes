@@ -1,4 +1,4 @@
-INSERT OR FAIL INTO Emotions (
+INSERT OR IGNORE INTO Emotions (
     emotState,
     angryLevel,
     sadLevel,

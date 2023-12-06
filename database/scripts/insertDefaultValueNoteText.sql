@@ -1,1 +1,1 @@
-INSERT OR IGNORE INTO NoteTextDetails(id) VALUES (0);
+INSERT OR IGNORE INTO NoteTextDetails(id, locked) VALUES (0, 1);

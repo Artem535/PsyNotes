@@ -12,13 +12,15 @@ constexpr char createEmotTable[] =
     "    loveLevel INTEGER DEFAULT 0, "
     "    fearLevel INTEGER DEFAULT 0, "
     "    happyLevel INTEGER DEFAULT 0, "
+    "    locked INTEGER DEFAULT 0, "
     "     "
     "    UNIQUE (emotState, "
     "            angryLevel, "
     "            sadLevel, "
     "            loveLevel, "
     "            fearLevel, "
-    "            happyLevel) "
+    "            happyLevel, "
+    "            locked) "
     "); ";
 constexpr char createNoteTable[] = 
     "CREATE TABLE IF NOT EXISTS Notes ( "
@@ -28,18 +30,18 @@ constexpr char createNoteTable[] =
     "    unixTime INTEGER DEFAULT (UNIXEPOCH('now')), "
     "    noteTextId INTEGER DEFAULT 0 NOT NULL, "
     "    emotId INTEGER DEFAULT 0 NOT NULL, "
+    "    locked INTEGER DEFAULT 0, "
     "     "
     "    FOREIGN KEY (noteTextId) REFERENCES NoteTextDetails (id), "
     "    FOREIGN KEY (emotId) REFERENCES Emotions (id) "
     "    "
-    "    UNIQUE(noteTextId, emotId) "
     "); ";
 constexpr char insertDefaultValueNote[] = 
-    "INSERT OR IGNORE INTO Notes VALUES (0, 0, \"DEFAULT EMPTY NOTE\", 0, 0, 0); ";
+    "INSERT OR IGNORE INTO Notes VALUES (0, 0, \"DEFAULT EMPTY NOTE\", 0, 0, 0, 1); ";
 constexpr char insertDefaultValueEmot[] = 
-    "INSERT OR IGNORE INTO Emotions(id) VALUES (-1); ";
+    "INSERT OR IGNORE INTO Emotions(id, locked) VALUES (0, 1); ";
 constexpr char insertDefaultValueNoteText[] = 
-    "INSERT OR IGNORE INTO NoteTextDetails(id) VALUES (0); ";
+    "INSERT OR IGNORE INTO NoteTextDetails(id, locked) VALUES (0, 1); ";
 constexpr char createNoteTextTable[] = 
     "CREATE TABLE IF NOT EXISTS NoteTextDetails ( "
     "    id INTEGER PRIMARY KEY, "
@@ -47,11 +49,13 @@ constexpr char createNoteTextTable[] =
     "    behaviorTxt TEXT DEFAULT \"\", "
     "    bodyTxt TEXT DEFAULT \"\", "
     "    situationTxt TEXT DEFAULT \"\", "
+    "    locked INTEGER DEFAULT 0, "
     "     "
     "    UNIQUE (thoughtsTxt, "
     "            behaviorTxt, "
     "            bodyTxt, "
-    "            situationTxt) "
+    "            situationTxt,  "
+    "            locked) "
     "); ";
 constexpr char getShortNotes[] = 
     "SELECT "
@@ -86,7 +90,7 @@ constexpr char insertNewNoteTemplate[] =
     "    :emotId "
     "); ";
 constexpr char insertNewEmotTemplate[] = 
-    "INSERT OR FAIL INTO Emotions ( "
+    "INSERT OR IGNORE INTO Emotions ( "
     "    emotState, "
     "    angryLevel, "
     "    sadLevel, "
@@ -103,7 +107,7 @@ constexpr char insertNewEmotTemplate[] =
     "); "
     " ";
 constexpr char insertNewTextTemplate[] = 
-    "INSERT OR FAIL INTO NoteTextDetails ( "
+    "INSERT INTO NoteTextDetails ( "
     "    thoughtsTxt, "
     "    behaviorTxt, "
     "    bodyTxt, "
@@ -116,16 +120,8 @@ constexpr char insertNewTextTemplate[] =
     "); "
     " ";
 constexpr char replaceNote[] = 
-    "INSERT OR REPLACE INTO Notes ( "
-    "    id, "
-    "    title, "
-    "    noteTextId, "
-    "    emotId "
-    ") VALUES ( "
-    "    :id, "
-    "    \"title\", "
-    "    :noteTextId, "
-    "    :emotId "
-    "); ";
+    "UPDATE Notes "
+    "SET title = \"title\", noteTextId = :noteTextId, emotId = :emotId "
+    "WHERE id = :id; ";
 }; // namespace sql
 }; // namespace constants

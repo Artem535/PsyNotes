@@ -1,11 +1,3 @@
-INSERT OR REPLACE INTO Notes (
-    id,
-    title,
-    noteTextId,
-    emotId
-) VALUES (
-    :id,
-    "title",
-    :noteTextId,
-    :emotId
-);
+UPDATE Notes
+SET title = "title", noteTextId = :noteTextId, emotId = :emotId
+WHERE id = :id;

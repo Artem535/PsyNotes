@@ -1,4 +1,4 @@
-INSERT OR FAIL INTO NoteTextDetails (
+INSERT INTO NoteTextDetails (
     thoughtsTxt,
     behaviorTxt,
     bodyTxt,

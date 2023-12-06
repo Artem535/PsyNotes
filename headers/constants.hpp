@@ -6,30 +6,30 @@
 namespace constants {
 
 namespace emotions {
-constexpr char emotAngry[] = "ANGRY";
-constexpr char emotFear[] = "FEAR";
-constexpr char emotSad[] = "SAD";
-constexpr char emotHappy[] = "HAPPY";
-constexpr char emotLove[] = "LOVE";
+constexpr char kEmotAngry[] = "ANGRY";
+constexpr char kEmotFear[] = "FEAR";
+constexpr char kEmotSad[] = "SAD";
+constexpr char kEmotHappy[] = "HAPPY";
+constexpr char kEmotLove[] = "LOVE";
 } // namespace emotions
 
 namespace noteDetails {
-constexpr char body[] = "body";
-constexpr char thoughts[] = "thoughts";
-constexpr char behavior[] = "behavior";
-constexpr char situation[] = "situation";
+constexpr char kBody[] = "body";
+constexpr char kThoughts[] = "thoughts";
+constexpr char kBehavior[] = "behavior";
+constexpr char kSituation[] = "situation";
 } // namespace noteDetails
 
 namespace questionsLabels {
-constexpr char body[] = "what you feel in body?";
-constexpr char thoughts[] = "What are you think?";
-constexpr char behavior[] = "Your behaviour?";
-constexpr char situation[] = "Situations?";
+constexpr char kBody[] = "what you feel in body?";
+constexpr char kThoughts[] = "What are you think?";
+constexpr char kBehavior[] = "Your behaviour?";
+constexpr char kSituation[] = "Situations?";
 } // namespace questionsLabels
 
 namespace database {
-constexpr short defaultNoteID = 0;
-constexpr char databaseName[] = "notestorage.db";
+constexpr short kDefaultNoteID = 0;
+constexpr char kDatabaseName[] = "notestorage.db";
 } // namespace database
 
 } // namespace constants
