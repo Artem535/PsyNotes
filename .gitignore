@@ -1,5 +1,13 @@
 # Prerequisites
 *.d
+database/.project
+database/.dbeaver
+
+.vscode
+
+.cache
+
+build
 
 # Compiled Object files
 *.slo
