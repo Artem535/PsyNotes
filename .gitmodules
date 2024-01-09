@@ -1,0 +1,3 @@
+[submodule "third-party/OPUS-MT-train"]
+	path = third-party/OPUS-MT-train
+	url = https://github.com/Helsinki-NLP/OPUS-MT-train.git
